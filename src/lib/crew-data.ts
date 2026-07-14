@@ -1,12 +1,16 @@
 // ============================================================
 // EDITE AQUI — conteúdo do site Zero Order
-// Você pode alterar livremente os textos, jogadores e perguntas.
 // ============================================================
 
+// Discord padrão (fallback). O link OFICIAL vem da célula Z1 da planilha.
 export const DISCORD_URL = "https://discord.gg/atMHkzPrKA";
 
-// Planilha do Google Sheets — coluna A: melhores da crew (1-100),
-// coluna B: Top S.A (1-100). Só aparecem no site as linhas preenchidas.
+// URL pública do site (para compartilhar). Edite se mudar o domínio.
+export const SITE_URL = "https://zero-order.lovable.app";
+
+// Planilha do Google Sheets:
+// A = Melhores da crew, B = Top S.A, C = Skilled, D = Mobile, E = PC, F = Console
+// Z1 = link do Discord
 export const SHEET_ID = "1tC8t4AXQYskOSmg9V7Zx85K1EtvxkNVB458vSg7wpIA";
 export const SHEET_GID = "0";
 
