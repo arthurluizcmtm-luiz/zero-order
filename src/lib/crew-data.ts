@@ -5,6 +5,11 @@
 
 export const DISCORD_URL = "https://discord.gg/atMHkzPrKA";
 
+// Planilha do Google Sheets — coluna A: melhores da crew (1-100),
+// coluna B: Top S.A (1-100). Só aparecem no site as linhas preenchidas.
+export const SHEET_ID = "1tC8t4AXQYskOSmg9V7Zx85K1EtvxkNVB458vSg7wpIA";
+export const SHEET_GID = "0";
+
 export const CREW_DESCRIPTION =
   "Está crew foi Fundada para chegar no topo, começou em 14/07/26, e vai conquistar o topo, nela, iremos querer somente os melhores, e por meio dos melhores, vamos dominar todos os servidores possiveis.";
 
