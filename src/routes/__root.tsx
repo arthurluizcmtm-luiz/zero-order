@@ -93,8 +93,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Zero Order — Crew de Blox Fruits" },
       { name: "twitter:description", content: "Zero Order: crew de Blox Fruits nascida para chegar ao topo. Wars, Frota de Farm, treinadores e o ranking dos melhores." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/36be35fd-bd86-4301-b889-1314acdfabdb/id-preview-8caf796a--e3ce3556-ea7f-4e58-88e1-9ae978b6fa71.lovable.app-1783913725416.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/36be35fd-bd86-4301-b889-1314acdfabdb/id-preview-8caf796a--e3ce3556-ea7f-4e58-88e1-9ae978b6fa71.lovable.app-1783913725416.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/58c99e6e-8c85-4631-ac3c-8ce78d97b12c" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/58c99e6e-8c85-4631-ac3c-8ce78d97b12c" },
     ],
     links: [
       {
@@ -107,6 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Quicksand:wght@400;500;600;700&display=swap",
       },
+      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
     ],
   }),
   shellComponent: RootShell,
