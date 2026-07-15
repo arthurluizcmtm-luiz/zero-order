@@ -97,8 +97,13 @@ function Index() {
   const mobile = data?.mobile ?? [];
   const pc = data?.pc ?? [];
   const consolePlayers = data?.console ?? [];
+  const sheetFaq = data?.faq ?? [];
+  const news = data?.news ?? [];
+  const giveaways = data?.giveaways ?? [];
   const sheetError = data?.error;
   const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
+  const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
+
 
   return (
     <div className="min-h-screen font-body">
@@ -124,14 +129,6 @@ function Index() {
             className="pulse-glow rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground transition-transform hover:scale-105"
           >
             💬 Entrar no Discord
-          </a>
-          <a
-            href={SITE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full border border-white/40 bg-white/10 px-5 py-2 text-sm font-bold text-white backdrop-blur transition-transform hover:scale-105"
-          >
-            🔗 Link do site
           </a>
         </div>
       </header>
@@ -195,14 +192,6 @@ function Index() {
             className="pulse-glow rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground shadow-lg transition-transform hover:scale-105"
           >
             Entrar no Discord
-          </a>
-          <a
-            href={SITE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 text-xs uppercase tracking-widest text-white/70 hover:text-white"
-          >
-            🔗 Compartilhar o site
           </a>
         </aside>
       </section>
@@ -315,15 +304,15 @@ function Index() {
             </p>
           </a>
           <a
-            href="https://trello.com/b/i6yj1x0Q/blox-fruits"
+            href="https://gamerrobot.com/blogs/news"
             target="_blank"
             rel="noopener noreferrer"
             className="glass block rounded-2xl p-6 transition-transform hover:scale-[1.03]"
           >
             <div className="mb-3 text-3xl">📰</div>
-            <h3 className="mb-2 text-xl font-bold text-primary">Boletim / Trello</h3>
+            <h3 className="mb-2 text-xl font-bold text-primary">Boletim Oficial</h3>
             <p className="text-sm text-foreground/85">
-              Todas as novidades, atualizações e patch notes direto dos devs.
+              Novidades, atualizações e patch notes direto da Gamer Robot.
             </p>
           </a>
           <a
@@ -341,20 +330,72 @@ function Index() {
         </div>
       </section>
 
+      {/* News do Server */}
+      <section className="mx-auto max-w-4xl px-6 py-12">
+        <h2 className="mb-8 text-center text-4xl font-bold">
+          <span className="gradient-shift">📢 News do Server</span>
+        </h2>
+        {news.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground">
+            Nenhuma novidade ainda — preencha a coluna H da planilha (H1 título, H2 descrição…).
+          </p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {news.map((n, i) => (
+              <div key={i} className="glass rounded-2xl p-6">
+                <h3 className="mb-2 text-xl font-bold text-primary">{n.title}</h3>
+                <p className="leading-relaxed text-foreground/85">{n.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Sorteios */}
+      <section className="mx-auto max-w-4xl px-6 py-12">
+        <h2 className="mb-8 text-center text-4xl font-bold">
+          <span className="gradient-shift">🎁 Sorteios</span>
+        </h2>
+        {giveaways.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground">
+            Nenhum sorteio ativo — preencha a coluna I da planilha (I1 prêmio, I2 data de término…).
+          </p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {giveaways.map((g, i) => (
+              <div key={i} className="glass rounded-2xl p-6 text-center">
+                <div className="mb-3 text-3xl">🎁</div>
+                <h3 className="mb-2 text-xl font-bold text-primary">{g.prize}</h3>
+                <p className="text-sm uppercase tracking-widest text-white/80">
+                  Termina em: <span className="font-bold text-white">{g.endsAt || "—"}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* FAQ */}
       <section className="mx-auto max-w-3xl px-6 py-12">
         <h2 className="mb-8 text-center text-4xl font-bold">
           <span className="gradient-shift">Perguntas Frequentes</span>
         </h2>
-        <div className="space-y-4">
-          {FAQ.map((item, i) => (
-            <div key={i} className="glass rounded-2xl p-6">
-              <h3 className="mb-2 text-xl font-bold text-primary">{item.question}</h3>
-              <p className="leading-relaxed text-foreground/85">{item.answer}</p>
-            </div>
-          ))}
-        </div>
+        {faqItems.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground">
+            Nenhuma pergunta ainda — preencha a coluna G da planilha (G1 pergunta, G2 resposta…).
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <div key={i} className="glass rounded-2xl p-6">
+                <h3 className="mb-2 text-xl font-bold text-primary">{item.question}</h3>
+                <p className="leading-relaxed text-foreground/85">{item.answer}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
+
 
       {/* Footer */}
       <footer className="mx-auto max-w-6xl px-6 py-12 text-center">
