@@ -5,11 +5,23 @@
 // Discord padrão (fallback). O link OFICIAL vem da célula Z1 da planilha.
 export const DISCORD_URL = "https://discord.gg/atMHkzPrKA";
 
-// URL pública do site (para compartilhar). Edite se mudar o domínio.
+// URL pública do site.
 export const SITE_URL = "https://zero-order.lovable.app";
 
+// Chave PIX de doação.
+export const PIX_KEY = "a7acac8f-e38e-43b6-b8ca-c033c8aa8ea1";
+
 // Planilha do Google Sheets:
-// A = Melhores da crew, B = Top S.A, C = Skilled, D = Mobile, E = PC, F = Console
+// A = Melhores da crew
+// B = Top S.A (IDs de Discord)
+// C = Skilled, D = Mobile, E = PC, F = Console
+// G = FAQ (G1 pergunta, G2 resposta, ...) até G500
+// H = News (H1 título, H2 descrição, ...)
+// I = Sorteios (I1 prêmio, I2 data DD/MM/YY)
+// J = Servidores privados por região
+//     J1-J10 = S.A, J11-J20 = N.A, J21-J30 = Europa,
+//     J31-J40 = Ásia, J41-J50 = África, J51-J60 = Oceania
+// K = Vídeos do YouTube (uma URL por linha)
 // Z1 = link do Discord
 export const SHEET_ID = "1tC8t4AXQYskOSmg9V7Zx85K1EtvxkNVB458vSg7wpIA";
 export const SHEET_GID = "0";
@@ -17,14 +29,6 @@ export const SHEET_GID = "0";
 export const CREW_DESCRIPTION =
   "Está crew foi Fundada para chegar no topo, começou em 14/07/26, e vai conquistar o topo, nela, iremos querer somente os melhores, e por meio dos melhores, vamos dominar todos os servidores possiveis.";
 
-// Lista dos melhores da crew — de 1 a 100.
-// Substitua os nomes conforme quiser. Deixe "" para vagas ainda não preenchidas.
-export const PLAYERS: string[] = [
-  "ZeroCute",
-  ...Array.from({ length: 99 }, (_, i) => `Vaga #${i + 2}`),
-];
-
-// O que a crew vai ter
 export const FEATURES: { title: string; description: string }[] = [
   {
     title: "Wars",
@@ -48,14 +52,6 @@ export const FEATURES: { title: string; description: string }[] = [
   },
 ];
 
-// Placar Top S.A (membros da nossa crew)
-export const TOP_SA: { name: string; points: number }[] = [
-  { name: "ZeroCute", points: 0 },
-  { name: "Vaga #2", points: 0 },
-  { name: "Vaga #3", points: 0 },
-];
-
-// Perguntas e respostas — edite quando quiser
 export const FAQ: { question: string; answer: string }[] = [
   {
     question: "Quantas pessoas tem na crew?",
@@ -67,3 +63,12 @@ export const FAQ: { question: string; answer: string }[] = [
       "Não ainda, porque ela está em desenvolvimento e será aberta em agosto ou mais cedo. Terá avisos sobre isso no Discord.",
   },
 ];
+
+export const REGIONS = [
+  { key: "sa", label: "South America", flag: "🌎", start: 0, end: 10 },
+  { key: "na", label: "North America", flag: "🗽", start: 10, end: 20 },
+  { key: "eu", label: "Europa", flag: "🏰", start: 20, end: 30 },
+  { key: "asia", label: "Ásia", flag: "🏯", start: 30, end: 40 },
+  { key: "africa", label: "África", flag: "🦁", start: 40, end: 50 },
+  { key: "oceania", label: "Oceania", flag: "🏝️", start: 50, end: 60 },
+] as const;
