@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { SHEET_ID, SHEET_GID } from "./crew-data";
 
-// Parse simples de CSV (suporta aspas duplas e vírgulas dentro de campos).
+// Parser CSV mínimo (aspas duplas + vírgulas embutidas).
 function parseCSV(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -11,36 +11,18 @@ function parseCSV(text: string): string[][] {
     const c = text[i];
     if (inQuotes) {
       if (c === '"') {
-        if (text[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        field += c;
-      }
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
     } else {
       if (c === '"') inQuotes = true;
-      else if (c === ",") {
-        row.push(field);
-        field = "";
-      } else if (c === "\n") {
-        row.push(field);
-        rows.push(row);
-        row = [];
-        field = "";
-      } else if (c === "\r") {
-        // ignora
-      } else {
-        field += c;
-      }
+      else if (c === ",") { row.push(field); field = ""; }
+      else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c === "\r") {/* ignore */}
+      else field += c;
     }
   }
-  if (field.length > 0 || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
+  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
   return rows;
 }
 
@@ -50,7 +32,7 @@ export type GiveawayItem = { prize: string; endsAt: string };
 
 export type SheetData = {
   crew: string[];
-  topSA: string[];
+  topSA: string[]; // Discord IDs
   skilled: string[];
   mobile: string[];
   pc: string[];
@@ -58,24 +40,17 @@ export type SheetData = {
   faq: FaqItem[];
   news: NewsItem[];
   giveaways: GiveawayItem[];
+  regions: string[]; // 60 slots (10 por região)
+  youtube: string[];
   discordUrl: string;
   error?: string;
 };
 
 const EMPTY: SheetData = {
-  crew: [],
-  topSA: [],
-  skilled: [],
-  mobile: [],
-  pc: [],
-  console: [],
-  faq: [],
-  news: [],
-  giveaways: [],
-  discordUrl: "",
+  crew: [], topSA: [], skilled: [], mobile: [], pc: [], console: [],
+  faq: [], news: [], giveaways: [], regions: [], youtube: [], discordUrl: "",
 };
 
-// Agrupa uma coluna em pares (linha ímpar = título/prêmio, par = descrição/data).
 function pairs<T>(col: string[], make: (a: string, b: string) => T): T[] {
   const out: T[] = [];
   for (let i = 0; i < col.length; i += 2) {
@@ -87,45 +62,72 @@ function pairs<T>(col: string[], make: (a: string, b: string) => T): T[] {
   return out;
 }
 
+// Data de hoje no fuso America/Sao_Paulo em YYYY-MM-DD.
+function todayBR(): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+// Converte "DD/MM/YY" ou "DD/MM/YYYY" em "YYYY-MM-DD". Retorna null se inválido.
+function parseBRDate(s: string): string | null {
+  const m = s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (!m) return null;
+  let [, d, mo, y] = m;
+  if (y.length === 2) y = "20" + y;
+  return `${y.padStart(4, "0")}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`;
+}
+
 export const fetchSheetData = createServerFn({ method: "GET" }).handler(
   async (): Promise<SheetData> => {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&range=A1:Z100`;
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&range=A1:Z500`;
     try {
       const res = await fetch(url, { headers: { "cache-control": "no-cache" } });
       if (!res.ok) {
-        return {
-          ...EMPTY,
-          error: `Não foi possível ler a planilha (HTTP ${res.status}). Verifique se ela está compartilhada como "Qualquer pessoa com o link".`,
-        };
+        return { ...EMPTY, error: `Não foi possível ler a planilha (HTTP ${res.status}). Verifique se ela está compartilhada como "Qualquer pessoa com o link".` };
       }
       const text = await res.text();
       if (text.trimStart().startsWith("<")) {
-        return {
-          ...EMPTY,
-          error:
-            'A planilha ainda está privada. No Google Sheets, clique em "Compartilhar" e escolha "Qualquer pessoa com o link" como Leitor.',
-        };
+        return { ...EMPTY, error: 'A planilha ainda está privada. No Google Sheets, clique em "Compartilhar" e escolha "Qualquer pessoa com o link" como Leitor.' };
       }
       const rows = parseCSV(text);
-      // A..I  (0..8) — mantemos células vazias para preservar o pareamento em G/H/I.
-      const filtered: string[][] = [[], [], [], [], [], []]; // A..F sem vazios
+      const filtered: string[][] = [[], [], [], [], [], []]; // A..F
       const rawG: string[] = [];
       const rawH: string[] = [];
       const rawI: string[] = [];
+      const rawJ: string[] = new Array(60).fill("");
+      const rawK: string[] = [];
       let discordUrl = "";
-      for (let i = 0; i < Math.min(rows.length, 100); i++) {
+      const max = Math.min(rows.length, 500);
+      for (let i = 0; i < max; i++) {
+        const r = rows[i] ?? [];
         for (let c = 0; c < 6; c++) {
-          const v = (rows[i][c] ?? "").trim();
+          const v = (r[c] ?? "").trim();
           if (v) filtered[c].push(v);
         }
-        rawG.push(rows[i][6] ?? "");
-        rawH.push(rows[i][7] ?? "");
-        rawI.push(rows[i][8] ?? "");
+        rawG.push(r[6] ?? "");
+        rawH.push(r[7] ?? "");
+        rawI.push(r[8] ?? "");
+        if (i < 60) rawJ[i] = (r[9] ?? "").trim();
+        const k = (r[10] ?? "").trim();
+        if (k) rawK.push(k);
         if (i === 0) {
-          const z = (rows[0][25] ?? "").trim();
+          const z = (r[25] ?? "").trim();
           if (z) discordUrl = z;
         }
       }
+
+      // Filtrar sorteios expirados (data no fuso do Brasil).
+      const today = todayBR();
+      const giveaways = pairs(rawI, (p, d) => ({ prize: p, endsAt: d })).filter((g) => {
+        const iso = parseBRDate(g.endsAt);
+        if (!iso) return true; // sem data reconhecível: mantém
+        return iso >= today;
+      });
+
       return {
         crew: filtered[0],
         topSA: filtered[1],
@@ -135,15 +137,13 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         console: filtered[5],
         faq: pairs(rawG, (q, a) => ({ question: q, answer: a })),
         news: pairs(rawH, (t, d) => ({ title: t, description: d })),
-        giveaways: pairs(rawI, (p, d) => ({ prize: p, endsAt: d })),
+        giveaways,
+        regions: rawJ,
+        youtube: rawK,
         discordUrl,
       };
     } catch (e) {
-      return {
-        ...EMPTY,
-        error: e instanceof Error ? e.message : "Erro desconhecido ao buscar a planilha.",
-      };
+      return { ...EMPTY, error: e instanceof Error ? e.message : "Erro desconhecido ao buscar a planilha." };
     }
   },
 );
-
