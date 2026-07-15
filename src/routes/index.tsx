@@ -12,7 +12,18 @@ import { fetchSheetData } from "@/lib/sheet.functions";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { property: "og:image", content: `${SITE_URL}/og-image.jpg` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:image", content: `${SITE_URL}/og-image.jpg` },
+      { property: "og:url", content: SITE_URL },
+    ],
+    links: [{ rel: "canonical", href: SITE_URL }],
+  }),
 });
+
 
 // Interpola cor de vermelho intenso → branco conforme a posição.
 function rankColor(index: number, total: number): string {
