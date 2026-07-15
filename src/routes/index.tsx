@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   DISCORD_URL,
   SITE_URL,
@@ -278,13 +278,6 @@ function Index() {
     refetchOnWindowFocus: true,
   });
 
-  // Reaplica tema salvo em cada render inicial.
-  useEffect(() => {
-    (async () => {
-      const mod = await import("@/components/ThemeCustomizer");
-      mod.applyTheme(mod.loadStoredTheme());
-    })();
-  }, []);
 
   const crew = data?.crew ?? [];
   const topSA = data?.topSA ?? [];
