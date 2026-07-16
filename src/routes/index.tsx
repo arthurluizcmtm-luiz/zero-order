@@ -380,8 +380,8 @@ function Index() {
         <Tabs defaultValue="rankings" className="w-full">
           <TabsList className="mx-auto mb-8 flex h-auto w-full max-w-4xl flex-wrap justify-center gap-1 bg-white/5 p-1.5 backdrop-blur">
             <TabsTrigger value="rankings">🏆 Rankings</TabsTrigger>
-            <TabsTrigger value="topsa">👑 Top S.A</TabsTrigger>
-            <TabsTrigger value="regions">🌍 Regiões</TabsTrigger>
+            <TabsTrigger value="regions">🌍 Regiões & Top S.A</TabsTrigger>
+            <TabsTrigger value="servers">🔗 Servidores</TabsTrigger>
             <TabsTrigger value="features">⚔️ Crew</TabsTrigger>
             <TabsTrigger value="news">📢 News</TabsTrigger>
             <TabsTrigger value="giveaways">🎁 Sorteios</TabsTrigger>
@@ -400,31 +400,27 @@ function Index() {
             </div>
           </TabsContent>
 
-          {/* Top S.A por Discord ID */}
-          <TabsContent value="topsa">
-            <h2 className="mb-6 text-center text-3xl font-bold">
-              <span className="gradient-shift">Placar Top S.A</span>
-            </h2>
-            {isLoading ? (
-              <p className="text-center text-sm text-muted-foreground">Carregando…</p>
-            ) : topSA.length === 0 ? (
-              <ComingSoon />
-            ) : (
-              <div className="mx-auto grid max-w-3xl gap-3">
-                {topSA.map((id, i) => (
-                  <DiscordCard key={id + i} id={id} rank={i + 1} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Servidores regionais */}
+          {/* Top S.A + Regionais (por Discord ID) */}
           <TabsContent value="regions">
             {isLoading ? (
               <p className="text-center text-sm text-muted-foreground">Carregando…</p>
             ) : (
-              <RegionServers regions={regions} />
+              <RegionServers regions={regions} topSA={topSA} />
             )}
+          </TabsContent>
+
+          {/* Servidores privados (coluna L) */}
+          <TabsContent value="servers">
+            <div className="glass rounded-2xl p-6">
+              <h3 className="mb-4 text-2xl font-bold">
+                <span className="gradient-shift">Servidores Privados</span>
+              </h3>
+              {isLoading ? (
+                <p className="text-center text-sm text-muted-foreground">Carregando…</p>
+              ) : (
+                <PrivateServersList items={privateServers} />
+              )}
+            </div>
           </TabsContent>
 
           {/* Crew features */}
