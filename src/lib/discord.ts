@@ -26,6 +26,7 @@ export async function fetchDiscordUser(id: string): Promise<DiscordUser> {
   const fallback: DiscordUser = {
     id: clean,
     username: clean,
+    handle: clean,
     avatarUrl: AVATAR_FALLBACK(clean),
   };
   if (!/^\d{5,25}$/.test(clean)) return fallback;
@@ -36,6 +37,7 @@ export async function fetchDiscordUser(id: string): Promise<DiscordUser> {
     return {
       id: clean,
       username: data.global_name || data.username || clean,
+      handle: data.username || clean,
       avatarUrl: data.avatar?.link || AVATAR_FALLBACK(clean),
     };
   } catch {
