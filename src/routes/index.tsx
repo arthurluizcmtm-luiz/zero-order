@@ -103,7 +103,7 @@ function DiscordCard({ id, rank }: { id: string; rank: number }) {
     queryFn: () => fetchDiscordUser(id),
     staleTime: 5 * 60_000,
   });
-  const u = data ?? { id, username: id, avatarUrl: "" };
+  const u = data ?? { id, username: id, handle: id, avatarUrl: "" };
   return (
     <div className="glass flex items-center gap-4 rounded-2xl p-4">
       <span className="w-8 shrink-0 text-2xl font-black text-primary">#{rank}</span>
@@ -115,7 +115,7 @@ function DiscordCard({ id, rank }: { id: string; rank: number }) {
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-lg font-bold text-white">{u.username}</p>
-        <p className="truncate font-mono text-[10px] text-white/50">{id}</p>
+        <p className="truncate text-xs text-white/60">@{u.handle}</p>
       </div>
       <a
         href={discordProfileUrl(id)}
@@ -128,6 +128,7 @@ function DiscordCard({ id, rank }: { id: string; rank: number }) {
     </div>
   );
 }
+
 
 function DiscordInviteBanner({ url }: { url: string }) {
   const { data } = useQuery<DiscordInviteInfo | null>({
