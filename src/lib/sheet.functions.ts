@@ -101,6 +101,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawI: string[] = [];
       const rawJ: string[] = new Array(60).fill("");
       const rawK: string[] = [];
+      const rawL: string[] = [];
       let discordUrl = "";
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
@@ -115,6 +116,8 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         if (i < 60) rawJ[i] = (r[9] ?? "").trim();
         const k = (r[10] ?? "").trim();
         if (k) rawK.push(k);
+        const l = (r[11] ?? "").trim();
+        if (l) rawL.push(l);
         if (i === 0) {
           const z = (r[25] ?? "").trim();
           if (z) discordUrl = z;
