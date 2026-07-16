@@ -40,15 +40,16 @@ export type SheetData = {
   faq: FaqItem[];
   news: NewsItem[];
   giveaways: GiveawayItem[];
-  regions: string[]; // 60 slots (10 por região)
+  regions: string[]; // 60 slots (10 por região) — IDs de Discord
   youtube: string[];
+  privateServers: string[]; // coluna L
   discordUrl: string;
   error?: string;
 };
 
 const EMPTY: SheetData = {
   crew: [], topSA: [], skilled: [], mobile: [], pc: [], console: [],
-  faq: [], news: [], giveaways: [], regions: [], youtube: [], discordUrl: "",
+  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [], discordUrl: "",
 };
 
 function pairs<T>(col: string[], make: (a: string, b: string) => T): T[] {
