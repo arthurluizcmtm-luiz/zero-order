@@ -12,16 +12,17 @@ export const SITE_URL = "https://zero-order.lovable.app";
 export const PIX_KEY = "a7acac8f-e38e-43b6-b8ca-c033c8aa8ea1";
 
 // Planilha do Google Sheets:
-// A = Melhores da crew
-// B = Top S.A (IDs de Discord)
+// A = Melhores da crew (IDs de Discord)
+// B = Top S.A (IDs de Discord) — aparece junto de Regiões
 // C = Skilled, D = Mobile, E = PC, F = Console
 // G = FAQ (G1 pergunta, G2 resposta, ...) até G500
 // H = News (H1 título, H2 descrição, ...)
 // I = Sorteios (I1 prêmio, I2 data DD/MM/YY)
-// J = Servidores privados por região
+// J = Rankings regionais por Discord ID
 //     J1-J10 = S.A, J11-J20 = N.A, J21-J30 = Europa,
 //     J31-J40 = Ásia, J41-J50 = África, J51-J60 = Oceania
 // K = Vídeos do YouTube (uma URL por linha)
+// L = Servidores privados do Roblox (uma URL por linha)
 // Z1 = link do Discord
 export const SHEET_ID = "1tC8t4AXQYskOSmg9V7Zx85K1EtvxkNVB458vSg7wpIA";
 export const SHEET_GID = "0";
