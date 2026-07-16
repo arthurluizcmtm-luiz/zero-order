@@ -365,16 +365,11 @@ function Index() {
           ) : crew.length === 0 ? (
             <ComingSoon />
           ) : (
-            <ol className="grid max-h-[560px] grid-cols-1 gap-1 overflow-y-auto pr-2 sm:grid-cols-2">
-              {crew.map((name, i) => (
-                <li key={i} className="flex items-center gap-3 rounded-lg px-3 py-1.5 hover:bg-white/5">
-                  <span className="w-8 shrink-0 text-right text-sm font-semibold text-primary/80">{i + 1}</span>
-                  <span className="truncate font-semibold" style={{ color: rankColor(i, Math.max(crew.length, 2)) }}>
-                    {name}
-                  </span>
-                </li>
+            <div className="grid max-h-[640px] gap-3 overflow-y-auto pr-2 sm:grid-cols-2">
+              {crew.map((id, i) => (
+                <DiscordCard key={id + i} id={id} rank={i + 1} />
               ))}
-            </ol>
+            </div>
           )}
         </div>
         <DiscordInviteBanner url={discordUrl} />
