@@ -2,7 +2,8 @@
 
 export type DiscordUser = {
   id: string;
-  username: string;
+  username: string; // display name (global_name)
+  handle: string;   // @username
   avatarUrl: string;
 };
 
