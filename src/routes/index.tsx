@@ -103,7 +103,7 @@ function DiscordCard({ id, rank }: { id: string; rank: number }) {
     queryFn: () => fetchDiscordUser(id),
     staleTime: 5 * 60_000,
   });
-  const u = data ?? { id, username: id, avatarUrl: "" };
+  const u = data ?? { id, username: id, handle: id, avatarUrl: "" };
   return (
     <div className="glass flex items-center gap-4 rounded-2xl p-4">
       <span className="w-8 shrink-0 text-2xl font-black text-primary">#{rank}</span>
@@ -115,7 +115,7 @@ function DiscordCard({ id, rank }: { id: string; rank: number }) {
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-lg font-bold text-white">{u.username}</p>
-        <p className="truncate font-mono text-[10px] text-white/50">{id}</p>
+        <p className="truncate text-xs text-white/60">@{u.handle}</p>
       </div>
       <a
         href={discordProfileUrl(id)}
@@ -128,6 +128,7 @@ function DiscordCard({ id, rank }: { id: string; rank: number }) {
     </div>
   );
 }
+
 
 function DiscordInviteBanner({ url }: { url: string }) {
   const { data } = useQuery<DiscordInviteInfo | null>({
@@ -224,9 +225,25 @@ function YouTubeEmbed({ url }: { url: string }) {
   );
 }
 
-function RegionServers({ regions }: { regions: string[] }) {
+function RegionServers({ regions, topSA }: { regions: string[]; topSA: string[] }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <div className="glass rounded-2xl p-6">
+        <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold">
+          <span>👑</span>
+          <span className="gradient-shift">Placar Top S.A</span>
+        </h3>
+        {topSA.length === 0 ? (
+          <ComingSoon />
+        ) : (
+          <div className="grid gap-3">
+            {topSA.map((id, i) => (
+              <DiscordCard key={id + i} id={id} rank={i + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+
       {REGIONS.map((r) => {
         const slice = regions.slice(r.start, r.end).map((v) => v.trim()).filter(Boolean);
         return (
@@ -238,29 +255,11 @@ function RegionServers({ regions }: { regions: string[] }) {
             {slice.length === 0 ? (
               <ComingSoon />
             ) : (
-              <ol className="grid gap-2 sm:grid-cols-2">
-                {slice.map((link, i) => (
-                  <li key={i}>
-                    <a
-                      href={link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/30 px-3 py-2 transition hover:border-primary/60 hover:bg-black/50"
-                    >
-                      <span className="w-7 shrink-0 text-right text-sm font-black text-primary">
-                        #{i + 1}
-                      </span>
-                      <span
-                        className="min-w-0 flex-1 truncate text-sm font-semibold"
-                        style={{ color: rankColor(i, Math.max(slice.length, 2)) }}
-                      >
-                        🎮 Entrar no servidor privado
-                      </span>
-                      <span className="shrink-0 text-xs text-white/50">↗</span>
-                    </a>
-                  </li>
+              <div className="grid gap-3">
+                {slice.map((id, i) => (
+                  <DiscordCard key={id + i} id={id} rank={i + 1} />
                 ))}
-              </ol>
+              </div>
             )}
           </div>
         );
@@ -268,6 +267,30 @@ function RegionServers({ regions }: { regions: string[] }) {
     </div>
   );
 }
+
+function PrivateServersList({ items }: { items: string[] }) {
+  if (items.length === 0) return <ComingSoon />;
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {items.map((link, i) => (
+        <a
+          key={i}
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="glass flex items-center gap-3 rounded-xl px-4 py-3 transition hover:scale-[1.02] hover:border-primary/60"
+        >
+          <span className="text-2xl">🎮</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white">
+            Servidor privado #{i + 1}
+          </span>
+          <span className="shrink-0 text-xs text-primary">Entrar ↗</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 
 function Index() {
   const fetchSheet = useServerFn(fetchSheetData);
@@ -290,6 +313,7 @@ function Index() {
   const giveaways = data?.giveaways ?? [];
   const regions = data?.regions ?? [];
   const youtube = data?.youtube ?? [];
+  const privateServers = data?.privateServers ?? [];
   const sheetError = data?.error;
   const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
@@ -341,16 +365,11 @@ function Index() {
           ) : crew.length === 0 ? (
             <ComingSoon />
           ) : (
-            <ol className="grid max-h-[560px] grid-cols-1 gap-1 overflow-y-auto pr-2 sm:grid-cols-2">
-              {crew.map((name, i) => (
-                <li key={i} className="flex items-center gap-3 rounded-lg px-3 py-1.5 hover:bg-white/5">
-                  <span className="w-8 shrink-0 text-right text-sm font-semibold text-primary/80">{i + 1}</span>
-                  <span className="truncate font-semibold" style={{ color: rankColor(i, Math.max(crew.length, 2)) }}>
-                    {name}
-                  </span>
-                </li>
+            <div className="grid max-h-[640px] gap-3 overflow-y-auto pr-2 sm:grid-cols-2">
+              {crew.map((id, i) => (
+                <DiscordCard key={id + i} id={id} rank={i + 1} />
               ))}
-            </ol>
+            </div>
           )}
         </div>
         <DiscordInviteBanner url={discordUrl} />
@@ -361,8 +380,8 @@ function Index() {
         <Tabs defaultValue="rankings" className="w-full">
           <TabsList className="mx-auto mb-8 flex h-auto w-full max-w-4xl flex-wrap justify-center gap-1 bg-white/5 p-1.5 backdrop-blur">
             <TabsTrigger value="rankings">🏆 Rankings</TabsTrigger>
-            <TabsTrigger value="topsa">👑 Top S.A</TabsTrigger>
-            <TabsTrigger value="regions">🌍 Regiões</TabsTrigger>
+            <TabsTrigger value="regions">🌍 Regiões & Top S.A</TabsTrigger>
+            <TabsTrigger value="servers">🔗 Servidores</TabsTrigger>
             <TabsTrigger value="features">⚔️ Crew</TabsTrigger>
             <TabsTrigger value="news">📢 News</TabsTrigger>
             <TabsTrigger value="giveaways">🎁 Sorteios</TabsTrigger>
@@ -381,31 +400,27 @@ function Index() {
             </div>
           </TabsContent>
 
-          {/* Top S.A por Discord ID */}
-          <TabsContent value="topsa">
-            <h2 className="mb-6 text-center text-3xl font-bold">
-              <span className="gradient-shift">Placar Top S.A</span>
-            </h2>
-            {isLoading ? (
-              <p className="text-center text-sm text-muted-foreground">Carregando…</p>
-            ) : topSA.length === 0 ? (
-              <ComingSoon />
-            ) : (
-              <div className="mx-auto grid max-w-3xl gap-3">
-                {topSA.map((id, i) => (
-                  <DiscordCard key={id + i} id={id} rank={i + 1} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Servidores regionais */}
+          {/* Top S.A + Regionais (por Discord ID) */}
           <TabsContent value="regions">
             {isLoading ? (
               <p className="text-center text-sm text-muted-foreground">Carregando…</p>
             ) : (
-              <RegionServers regions={regions} />
+              <RegionServers regions={regions} topSA={topSA} />
             )}
+          </TabsContent>
+
+          {/* Servidores privados (coluna L) */}
+          <TabsContent value="servers">
+            <div className="glass rounded-2xl p-6">
+              <h3 className="mb-4 text-2xl font-bold">
+                <span className="gradient-shift">Servidores Privados</span>
+              </h3>
+              {isLoading ? (
+                <p className="text-center text-sm text-muted-foreground">Carregando…</p>
+              ) : (
+                <PrivateServersList items={privateServers} />
+              )}
+            </div>
           </TabsContent>
 
           {/* Crew features */}

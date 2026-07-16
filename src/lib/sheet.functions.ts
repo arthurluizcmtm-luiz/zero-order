@@ -40,15 +40,16 @@ export type SheetData = {
   faq: FaqItem[];
   news: NewsItem[];
   giveaways: GiveawayItem[];
-  regions: string[]; // 60 slots (10 por região)
+  regions: string[]; // 60 slots (10 por região) — IDs de Discord
   youtube: string[];
+  privateServers: string[]; // coluna L
   discordUrl: string;
   error?: string;
 };
 
 const EMPTY: SheetData = {
   crew: [], topSA: [], skilled: [], mobile: [], pc: [], console: [],
-  faq: [], news: [], giveaways: [], regions: [], youtube: [], discordUrl: "",
+  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [], discordUrl: "",
 };
 
 function pairs<T>(col: string[], make: (a: string, b: string) => T): T[] {
@@ -100,6 +101,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawI: string[] = [];
       const rawJ: string[] = new Array(60).fill("");
       const rawK: string[] = [];
+      const rawL: string[] = [];
       let discordUrl = "";
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
@@ -114,6 +116,8 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         if (i < 60) rawJ[i] = (r[9] ?? "").trim();
         const k = (r[10] ?? "").trim();
         if (k) rawK.push(k);
+        const l = (r[11] ?? "").trim();
+        if (l) rawL.push(l);
         if (i === 0) {
           const z = (r[25] ?? "").trim();
           if (z) discordUrl = z;
@@ -140,6 +144,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         giveaways,
         regions: rawJ,
         youtube: rawK,
+        privateServers: rawL,
         discordUrl,
       };
     } catch (e) {
