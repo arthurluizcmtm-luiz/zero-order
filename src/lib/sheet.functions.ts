@@ -144,6 +144,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         giveaways,
         regions: rawJ,
         youtube: rawK,
+        privateServers: rawL,
         discordUrl,
       };
     } catch (e) {
