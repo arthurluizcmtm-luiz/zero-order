@@ -313,6 +313,7 @@ function Index() {
   const giveaways = data?.giveaways ?? [];
   const regions = data?.regions ?? [];
   const youtube = data?.youtube ?? [];
+  const privateServers = data?.privateServers ?? [];
   const sheetError = data?.error;
   const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
