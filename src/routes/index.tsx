@@ -225,9 +225,25 @@ function YouTubeEmbed({ url }: { url: string }) {
   );
 }
 
-function RegionServers({ regions }: { regions: string[] }) {
+function RegionServers({ regions, topSA }: { regions: string[]; topSA: string[] }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <div className="glass rounded-2xl p-6">
+        <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold">
+          <span>👑</span>
+          <span className="gradient-shift">Placar Top S.A</span>
+        </h3>
+        {topSA.length === 0 ? (
+          <ComingSoon />
+        ) : (
+          <div className="grid gap-3">
+            {topSA.map((id, i) => (
+              <DiscordCard key={id + i} id={id} rank={i + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+
       {REGIONS.map((r) => {
         const slice = regions.slice(r.start, r.end).map((v) => v.trim()).filter(Boolean);
         return (
@@ -239,29 +255,11 @@ function RegionServers({ regions }: { regions: string[] }) {
             {slice.length === 0 ? (
               <ComingSoon />
             ) : (
-              <ol className="grid gap-2 sm:grid-cols-2">
-                {slice.map((link, i) => (
-                  <li key={i}>
-                    <a
-                      href={link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/30 px-3 py-2 transition hover:border-primary/60 hover:bg-black/50"
-                    >
-                      <span className="w-7 shrink-0 text-right text-sm font-black text-primary">
-                        #{i + 1}
-                      </span>
-                      <span
-                        className="min-w-0 flex-1 truncate text-sm font-semibold"
-                        style={{ color: rankColor(i, Math.max(slice.length, 2)) }}
-                      >
-                        🎮 Entrar no servidor privado
-                      </span>
-                      <span className="shrink-0 text-xs text-white/50">↗</span>
-                    </a>
-                  </li>
+              <div className="grid gap-3">
+                {slice.map((id, i) => (
+                  <DiscordCard key={id + i} id={id} rank={i + 1} />
                 ))}
-              </ol>
+              </div>
             )}
           </div>
         );
@@ -269,6 +267,30 @@ function RegionServers({ regions }: { regions: string[] }) {
     </div>
   );
 }
+
+function PrivateServersList({ items }: { items: string[] }) {
+  if (items.length === 0) return <ComingSoon />;
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {items.map((link, i) => (
+        <a
+          key={i}
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="glass flex items-center gap-3 rounded-xl px-4 py-3 transition hover:scale-[1.02] hover:border-primary/60"
+        >
+          <span className="text-2xl">🎮</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white">
+            Servidor privado #{i + 1}
+          </span>
+          <span className="shrink-0 text-xs text-primary">Entrar ↗</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 
 function Index() {
   const fetchSheet = useServerFn(fetchSheetData);
