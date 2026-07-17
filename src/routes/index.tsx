@@ -456,7 +456,7 @@ function Index() {
           ) : (
             <div className="grid max-h-[640px] gap-3 overflow-y-auto pr-2 sm:grid-cols-2">
               {crew.map((id, i) => (
-                <DiscordCard key={id + i} id={id} rank={i + 1} />
+                <DiscordCard key={id + i} entry={id} rank={i + 1} />
               ))}
             </div>
           )}
