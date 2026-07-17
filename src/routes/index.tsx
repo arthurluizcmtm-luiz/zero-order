@@ -101,34 +101,59 @@ function RankList({
   );
 }
 
-function DiscordCard({ id, rank }: { id: string; rank: number }) {
+function DiscordCard({ entry, rank }: { entry: string; rank: number }) {
+  const parsed = parseDiscordEntry(entry);
+  const id = parsed?.id ?? "";
+  const fallbackName = parsed?.fallbackName || (id ? `User ${id.slice(-4)}` : entry);
+  const shouldFetch = !!id && !parsed?.forceFallback;
+
   const { data } = useQuery<DiscordUser>({
     queryKey: ["discord-user", id],
     queryFn: () => fetchDiscordUser(id),
     staleTime: 5 * 60_000,
+    enabled: shouldFetch,
   });
-  const u = data ?? { id, username: id, handle: id, avatarUrl: "" };
+
+  const displayName =
+    parsed?.forceFallback && fallbackName
+      ? fallbackName
+      : data?.username || fallbackName || (id ? "Zero Order" : entry);
+  const handle = data?.handle || fallbackName || "";
+  const avatarUrl =
+    data?.avatarUrl ||
+    (id ? `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(id) % 6n)}.png` : "");
+
   return (
     <div className="glass flex items-center gap-4 rounded-2xl p-4">
       <span className="w-8 shrink-0 text-2xl font-black text-primary">#{rank}</span>
-      <img
-        src={u.avatarUrl}
-        alt={u.username}
-        className="h-14 w-14 rounded-full border-2 border-primary/60 object-cover"
-        loading="lazy"
-      />
+      {avatarUrl ? (
+        <img
+          src={avatarUrl}
+          alt={displayName}
+          className="h-14 w-14 rounded-full border-2 border-primary/60 object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary/60 bg-white/5 text-lg font-black text-primary">
+          {displayName.slice(0, 1).toUpperCase()}
+        </div>
+      )}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-lg font-bold text-white">{u.username}</p>
-        <p className="truncate text-xs text-white/60">@{u.handle}</p>
+        <p className="truncate text-lg font-bold text-white">{displayName}</p>
+        {handle && handle !== displayName && (
+          <p className="truncate text-xs text-white/60">@{handle}</p>
+        )}
       </div>
-      <a
-        href={discordProfileUrl(id)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="pulse-glow shrink-0 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:scale-105"
-      >
-        Ver perfil
-      </a>
+      {id && (
+        <a
+          href={discordProfileUrl(id)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pulse-glow shrink-0 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:scale-105"
+        >
+          Ver perfil
+        </a>
+      )}
     </div>
   );
 }
