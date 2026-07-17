@@ -15,8 +15,43 @@ export type DiscordInviteInfo = {
   presenceCount?: number;
 };
 
+// Formato aceito nas células da planilha:
+//   <@1234567890> ZeroCute <True>
+//   <@1234567890> ZeroCute <False>
+//   <@1234567890>                (só o ID)
+//   ZeroCute                     (só nome, sem ID)
+//   1234567890                   (ID cru, mantém compatibilidade)
+// Regras:
+// - <@ID> extrai o Discord ID (opcionalmente com !)
+// - Qualquer texto FORA de <...> é o nome fallback
+// - <True> força usar o nome fallback (não puxa do Discord)
+// - <False> ou ausência = puxa do Discord; se falhar, usa o fallback
+export type DiscordEntry = {
+  raw: string;
+  id: string | null;
+  fallbackName: string;
+  forceFallback: boolean;
+};
+
+export function parseDiscordEntry(raw: string): DiscordEntry | null {
+  const s = (raw ?? "").trim();
+  if (!s) return null;
+  const idMatch = s.match(/<@!?(\d{5,25})>/);
+  const flagMatch = s.match(/<\s*(true|false)\s*>/i);
+  // remove todos os <...> para obter o nome fallback
+  const name = s.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  let id: string | null = idMatch ? idMatch[1] : null;
+  // Compat: célula com apenas dígitos = ID cru
+  if (!id && /^\d{5,25}$/.test(name)) id = name;
+  return {
+    raw: s,
+    id,
+    fallbackName: name && !/^\d{5,25}$/.test(name) ? name : "",
+    forceFallback: flagMatch ? flagMatch[1].toLowerCase() === "true" : false,
+  };
+}
+
 const AVATAR_FALLBACK = (id: string) => {
-  // Avatar default do Discord (0..5) baseado no ID.
   const n = Number(BigInt(id || "0") % 6n);
   return `https://cdn.discordapp.com/embed/avatars/${n}.png`;
 };
@@ -30,19 +65,37 @@ export async function fetchDiscordUser(id: string): Promise<DiscordUser> {
     avatarUrl: AVATAR_FALLBACK(clean),
   };
   if (!/^\d{5,25}$/.test(clean)) return fallback;
-  try {
-    const res = await fetch(`https://discordlookup.mesalytic.moe/v1/user/${clean}`);
-    if (!res.ok) return fallback;
-    const data = await res.json();
-    return {
-      id: clean,
-      username: data.global_name || data.username || clean,
-      handle: data.username || clean,
-      avatarUrl: data.avatar?.link || AVATAR_FALLBACK(clean),
-    };
-  } catch {
-    return fallback;
+  // Tenta múltiplas APIs públicas para robustez.
+  const endpoints = [
+    `https://japi.rest/discord/v1/user/${clean}`,
+    `https://discordlookup.mesalytic.moe/v1/user/${clean}`,
+  ];
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      // japi.rest → { data: { username, global_name, avatarURL } }
+      const d = data.data ?? data;
+      const username = d.global_name || d.globalName || d.username || null;
+      const handle = d.username || d.tag?.split("#")[0] || null;
+      const avatar =
+        d.avatarURL ||
+        d.avatar?.link ||
+        (typeof d.avatar === "string" && d.avatar.startsWith("http") ? d.avatar : null);
+      if (username || avatar) {
+        return {
+          id: clean,
+          username: username || clean,
+          handle: handle || clean,
+          avatarUrl: avatar || AVATAR_FALLBACK(clean),
+        };
+      }
+    } catch {
+      /* try next */
+    }
   }
+  return fallback;
 }
 
 export function discordProfileUrl(id: string): string {
