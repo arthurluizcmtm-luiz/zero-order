@@ -99,7 +99,8 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         return { ...EMPTY, error: 'A planilha ainda está privada. No Google Sheets, clique em "Compartilhar" e escolha "Qualquer pessoa com o link" como Leitor.' };
       }
       const rows = parseCSV(text);
-      const filtered: string[][] = [[], [], [], [], [], []]; // A..F
+      const filtered: string[][] = [[], [], [], [], [], []]; // A, C, D, E, F apenas (B tratada à parte)
+      const rawB: string[] = [];
       const rawG: string[] = [];
       const rawH: string[] = [];
       const rawI: string[] = [];
@@ -110,10 +111,13 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
         const r = rows[i] ?? [];
-        for (let c = 0; c < 6; c++) {
+        // Colunas A, C-F (índices 0, 2, 3, 4, 5) — remove vazios.
+        const colMap = [0, 2, 3, 4, 5];
+        colMap.forEach((c, idx) => {
           const v = (r[c] ?? "").trim();
-          if (v) filtered[c].push(v);
-        }
+          if (v) filtered[idx].push(v);
+        });
+        rawB.push((r[1] ?? "").trim());
         rawG.push(r[6] ?? "");
         rawH.push(r[7] ?? "");
         rawI.push(r[8] ?? "");
@@ -136,13 +140,32 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         return iso >= today;
       });
 
+      // Coluna B: B1 = placar geral "wins/losses", B2+ = cada célula é um WarLog
+      // com "." separando linhas.
+      let warRecord: WarRecord | null = null;
+      const b1 = rawB[0] ?? "";
+      const rec = b1.match(/^\s*(\d+)\s*\/\s*(\d+)\s*$/);
+      if (rec) warRecord = { wins: Number(rec[1]), losses: Number(rec[2]), raw: b1 };
+      else if (b1) warRecord = { wins: 0, losses: 0, raw: b1 };
+
+      const warLogs: WarLogItem[] = rawB
+        .slice(1)
+        .filter((v) => v.trim().length > 0)
+        .map((v) => ({
+          lines: v
+            .split(/\.\s*/)
+            .map((s) => s.trim())
+            .filter(Boolean),
+        }));
+
       return {
         crew: filtered[0],
-        topSA: filtered[1],
-        skilled: filtered[2],
-        mobile: filtered[3],
-        pc: filtered[4],
-        console: filtered[5],
+        warRecord,
+        warLogs,
+        skilled: filtered[1],
+        mobile: filtered[2],
+        pc: filtered[3],
+        console: filtered[4],
         faq: pairs(rawG, (q, a) => ({ question: q, answer: a })),
         news: pairs(rawH, (t, d) => ({ title: t, description: d })),
         giveaways,
@@ -151,6 +174,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         privateServers: rawL,
         discordUrl,
       };
+
     } catch (e) {
       return { ...EMPTY, error: e instanceof Error ? e.message : "Erro desconhecido ao buscar a planilha." };
     }
