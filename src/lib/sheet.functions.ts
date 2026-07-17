@@ -46,13 +46,15 @@ export type SheetData = {
   regions: string[]; // 60 slots (10 por região) — IDs de Discord
   youtube: string[];
   privateServers: string[]; // coluna L
+  spotifyUrl: string; // M1
   discordUrl: string;
   error?: string;
 };
 
 const EMPTY: SheetData = {
   crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
-  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [], discordUrl: "",
+  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [],
+  spotifyUrl: "", discordUrl: "",
 };
 
 
@@ -108,6 +110,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawK: string[] = [];
       const rawL: string[] = [];
       let discordUrl = "";
+      let spotifyUrl = "";
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
         const r = rows[i] ?? [];
@@ -127,6 +130,8 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         const l = (r[11] ?? "").trim();
         if (l) rawL.push(l);
         if (i === 0) {
+          const m = (r[12] ?? "").trim();
+          if (m) spotifyUrl = m;
           const z = (r[25] ?? "").trim();
           if (z) discordUrl = z;
         }
@@ -172,6 +177,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         regions: rawJ,
         youtube: rawK,
         privateServers: rawL,
+        spotifyUrl,
         discordUrl,
       };
 
