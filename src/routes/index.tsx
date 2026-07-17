@@ -225,25 +225,9 @@ function YouTubeEmbed({ url }: { url: string }) {
   );
 }
 
-function RegionServers({ regions, topSA }: { regions: string[]; topSA: string[] }) {
+function RegionServers({ regions }: { regions: string[] }) {
   return (
     <div className="space-y-8">
-      <div className="glass rounded-2xl p-6">
-        <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold">
-          <span>👑</span>
-          <span className="gradient-shift">Placar Top S.A</span>
-        </h3>
-        {topSA.length === 0 ? (
-          <ComingSoon />
-        ) : (
-          <div className="grid gap-3">
-            {topSA.map((id, i) => (
-              <DiscordCard key={id + i} id={id} rank={i + 1} />
-            ))}
-          </div>
-        )}
-      </div>
-
       {REGIONS.map((r) => {
         const slice = regions.slice(r.start, r.end).map((v) => v.trim()).filter(Boolean);
         return (
@@ -267,6 +251,7 @@ function RegionServers({ regions, topSA }: { regions: string[]; topSA: string[] 
     </div>
   );
 }
+
 
 function PrivateServersList({ items }: { items: string[] }) {
   if (items.length === 0) return <ComingSoon />;
