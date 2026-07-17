@@ -110,6 +110,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawK: string[] = [];
       const rawL: string[] = [];
       let discordUrl = "";
+      let spotifyUrl = "";
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
         const r = rows[i] ?? [];
@@ -129,6 +130,8 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         const l = (r[11] ?? "").trim();
         if (l) rawL.push(l);
         if (i === 0) {
+          const m = (r[12] ?? "").trim();
+          if (m) spotifyUrl = m;
           const z = (r[25] ?? "").trim();
           if (z) discordUrl = z;
         }
