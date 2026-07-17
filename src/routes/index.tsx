@@ -288,8 +288,10 @@ function Index() {
 
 
   const crew = data?.crew ?? [];
-  const topSA = data?.topSA ?? [];
+  const warRecord = data?.warRecord ?? null;
+  const warLogs = data?.warLogs ?? [];
   const skilled = data?.skilled ?? [];
+
   const mobile = data?.mobile ?? [];
   const pc = data?.pc ?? [];
   const consolePlayers = data?.console ?? [];
