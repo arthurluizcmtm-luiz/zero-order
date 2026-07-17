@@ -276,6 +276,78 @@ function PrivateServersList({ items }: { items: string[] }) {
   );
 }
 
+function WarLogSection({
+  record,
+  logs,
+  isLoading,
+}: {
+  record: import("@/lib/sheet.functions").WarRecord | null;
+  logs: import("@/lib/sheet.functions").WarLogItem[];
+  isLoading: boolean;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="glass rounded-2xl p-8 text-center">
+        <h3 className="mb-4 text-sm uppercase tracking-[0.4em] text-white/60">Placar Geral</h3>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Carregando…</p>
+        ) : !record ? (
+          <ComingSoon />
+        ) : (
+          <div className="flex items-center justify-center gap-8">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-white/60">Win</p>
+              <p className="gradient-shift text-5xl font-black">{record.wins}</p>
+            </div>
+            <div className="text-4xl text-white/30">/</div>
+            <div>
+              <p className="text-xs uppercase tracking-widest text-white/60">Loses</p>
+              <p className="text-5xl font-black text-white/80">{record.losses}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="glass rounded-2xl p-6">
+        <h3 className="mb-4 text-2xl font-bold">
+          <span className="gradient-shift">War Logs</span>
+        </h3>
+        {isLoading ? (
+          <p className="text-center text-sm text-muted-foreground">Carregando…</p>
+        ) : logs.length === 0 ? (
+          <ComingSoon />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {logs.map((log, i) => (
+              <article
+                key={i}
+                className="rounded-xl border border-white/10 bg-black/30 p-5 text-center"
+              >
+                {log.lines.map((line, j) => (
+                  <p
+                    key={j}
+                    className={
+                      /^placar|^notes|^zero order (wins|lose)/i.test(line)
+                        ? "mt-2 text-sm font-bold text-primary"
+                        : /^vs\.?$/i.test(line)
+                          ? "my-2 text-xs uppercase tracking-[0.4em] text-white/50"
+                          : "text-sm leading-relaxed text-white/90"
+                    }
+                  >
+                    {line}
+                  </p>
+                ))}
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
 
 function Index() {
   const fetchSheet = useServerFn(fetchSheetData);
