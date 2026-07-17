@@ -270,7 +270,8 @@ function RegionServers({ regions }: { regions: string[] }) {
             ) : (
               <div className="grid gap-3">
                 {slice.map((id, i) => (
-                  <DiscordCard key={id + i} id={id} rank={i + 1} />
+                  <DiscordCard key={id + i} entry={id} rank={i + 1} />
+
                 ))}
               </div>
             )}
