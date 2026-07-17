@@ -473,6 +473,7 @@ function Index() {
   const regions = data?.regions ?? [];
   const youtube = data?.youtube ?? [];
   const privateServers = data?.privateServers ?? [];
+  const spotifyUrl = data?.spotifyUrl?.trim() || "";
   const sheetError = data?.error;
   const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
@@ -480,6 +481,8 @@ function Index() {
   return (
     <div className="min-h-screen font-body">
       <ThemeCustomizer />
+      {spotifyUrl && <MusicPlayer url={spotifyUrl} />}
+
 
       {/* Hero */}
       <header className="mx-auto max-w-6xl px-6 pt-16 pb-10 text-center">
