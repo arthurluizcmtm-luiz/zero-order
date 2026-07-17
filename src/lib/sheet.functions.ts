@@ -29,10 +29,13 @@ function parseCSV(text: string): string[][] {
 export type FaqItem = { question: string; answer: string };
 export type NewsItem = { title: string; description: string };
 export type GiveawayItem = { prize: string; endsAt: string };
+export type WarLogItem = { lines: string[] };
+export type WarRecord = { wins: number; losses: number; raw: string };
 
 export type SheetData = {
   crew: string[];
-  topSA: string[]; // Discord IDs
+  warRecord: WarRecord | null;
+  warLogs: WarLogItem[];
   skilled: string[];
   mobile: string[];
   pc: string[];
@@ -48,9 +51,10 @@ export type SheetData = {
 };
 
 const EMPTY: SheetData = {
-  crew: [], topSA: [], skilled: [], mobile: [], pc: [], console: [],
+  crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
   faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [], discordUrl: "",
 };
+
 
 function pairs<T>(col: string[], make: (a: string, b: string) => T): T[] {
   const out: T[] = [];
