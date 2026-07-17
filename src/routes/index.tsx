@@ -30,13 +30,8 @@ import {
 } from "@/components/ui/accordion";
 import ThemeCustomizer from "@/components/ThemeCustomizer";
 import MusicPlayer from "@/components/MusicPlayer";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
-import ThemeCustomizer from "@/components/ThemeCustomizer";
+
+
 
 export const Route = createFileRoute("/")({
   component: Index,
