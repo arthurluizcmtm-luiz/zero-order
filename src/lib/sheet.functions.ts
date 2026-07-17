@@ -177,6 +177,7 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         regions: rawJ,
         youtube: rawK,
         privateServers: rawL,
+        spotifyUrl,
         discordUrl,
       };
 
