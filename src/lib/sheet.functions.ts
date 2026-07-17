@@ -46,13 +46,15 @@ export type SheetData = {
   regions: string[]; // 60 slots (10 por região) — IDs de Discord
   youtube: string[];
   privateServers: string[]; // coluna L
+  spotifyUrl: string; // M1
   discordUrl: string;
   error?: string;
 };
 
 const EMPTY: SheetData = {
   crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
-  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [], discordUrl: "",
+  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [],
+  spotifyUrl: "", discordUrl: "",
 };
 
 
