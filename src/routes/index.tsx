@@ -315,60 +315,130 @@ function WarLogSection({
   logs: import("@/lib/sheet.functions").WarLogItem[];
   isLoading: boolean;
 }) {
+  const parseLog = (lines: string[]) => {
+    let vsIdx = lines.findIndex((l) => /^vs\.?$/i.test(l));
+    if (vsIdx < 0) vsIdx = Math.floor(lines.length / 2);
+    const header = lines.slice(0, 1);
+    const teamA: string[] = [];
+    const teamB: string[] = [];
+    const meta: { label: string; value: string; type: "score" | "notes" | "result" }[] = [];
+    let side: "A" | "B" = "A";
+    for (let i = 1; i < lines.length; i++) {
+      const l = lines[i];
+      if (/^vs\.?$/i.test(l)) { side = "B"; continue; }
+      const mScore = l.match(/^placar\s*:\s*(.+)$/i);
+      const mNotes = l.match(/^notes?\s*:\s*(.+)$/i);
+      const mResult = l.match(/^zero order\s+(wins?|lose[sd]?)/i);
+      if (mScore) { meta.push({ label: "Placar", value: mScore[1], type: "score" }); continue; }
+      if (mNotes) { meta.push({ label: "Notes", value: mNotes[1], type: "notes" }); continue; }
+      if (mResult) { meta.push({ label: "", value: l, type: "result" }); continue; }
+      (side === "A" ? teamA : teamB).push(l);
+    }
+    return { header: header[0] ?? "Zero Order", teamA, teamB, meta };
+  };
+
   return (
     <div className="space-y-6">
-      <div className="glass rounded-2xl p-8 text-center">
-        <h3 className="mb-4 text-sm uppercase tracking-[0.4em] text-white/60">Placar Geral</h3>
+      <div className="war-card p-8 text-center">
+        <span className="war-corner" style={{ top: 8, left: 8, borderTopWidth: 2, borderLeftWidth: 2 }} />
+        <span className="war-corner" style={{ top: 8, right: 8, borderTopWidth: 2, borderRightWidth: 2 }} />
+        <span className="war-corner" style={{ bottom: 8, left: 8, borderBottomWidth: 2, borderLeftWidth: 2 }} />
+        <span className="war-corner" style={{ bottom: 8, right: 8, borderBottomWidth: 2, borderRightWidth: 2 }} />
+        <p className="mb-3 text-xs uppercase tracking-[0.5em] text-white/60">⚜ Placar Geral ⚜</p>
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : !record ? (
           <ComingSoon />
         ) : (
-          <div className="flex items-center justify-center gap-8">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-white/60">Win</p>
-              <p className="gradient-shift text-5xl font-black">{record.wins}</p>
+          <div className="flex items-center justify-center gap-6 sm:gap-10">
+            <div className="text-center">
+              <p className="text-[10px] uppercase tracking-widest text-emerald-300/80">Wins</p>
+              <p className="gradient-shift text-6xl font-black leading-none">{record.wins}</p>
             </div>
-            <div className="text-4xl text-white/30">/</div>
-            <div>
-              <p className="text-xs uppercase tracking-widest text-white/60">Loses</p>
-              <p className="text-5xl font-black text-white/80">{record.losses}</p>
+            <div className="war-vs text-4xl font-black text-primary">⚔</div>
+            <div className="text-center">
+              <p className="text-[10px] uppercase tracking-widest text-red-300/80">Loses</p>
+              <p className="text-6xl font-black leading-none text-white/60">{record.losses}</p>
             </div>
           </div>
         )}
       </div>
 
       <div className="glass rounded-2xl p-6">
-        <h3 className="mb-4 text-2xl font-bold">
-          <span className="gradient-shift">War Logs</span>
+        <h3 className="mb-6 text-center text-3xl font-bold">
+          <span className="text-primary">⚔</span>{" "}
+          <span className="gradient-shift">War Logs</span>{" "}
+          <span className="text-primary">⚔</span>
         </h3>
         {isLoading ? (
           <p className="text-center text-sm text-muted-foreground">Carregando…</p>
         ) : logs.length === 0 ? (
           <ComingSoon />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {logs.map((log, i) => (
-              <article
-                key={i}
-                className="rounded-xl border border-white/10 bg-black/30 p-5 text-center"
-              >
-                {log.lines.map((line, j) => (
-                  <p
-                    key={j}
-                    className={
-                      /^placar|^notes|^zero order (wins|lose)/i.test(line)
-                        ? "mt-2 text-sm font-bold text-primary"
-                        : /^vs\.?$/i.test(line)
-                          ? "my-2 text-xs uppercase tracking-[0.4em] text-white/50"
-                          : "text-sm leading-relaxed text-white/90"
-                    }
-                  >
-                    {line}
+          <div className="grid gap-6 md:grid-cols-2">
+            {logs.map((log, i) => {
+              const p = parseLog(log.lines);
+              const won = p.meta.find((m) => m.type === "result" && /win/i.test(m.value));
+              const lost = p.meta.find((m) => m.type === "result" && /lose/i.test(m.value));
+              return (
+                <article key={i} className="war-card p-6">
+                  <span className="war-corner" style={{ top: 6, left: 6, borderTopWidth: 2, borderLeftWidth: 2 }} />
+                  <span className="war-corner" style={{ top: 6, right: 6, borderTopWidth: 2, borderRightWidth: 2 }} />
+                  <span className="war-corner" style={{ bottom: 6, left: 6, borderBottomWidth: 2, borderLeftWidth: 2 }} />
+                  <span className="war-corner" style={{ bottom: 6, right: 6, borderBottomWidth: 2, borderRightWidth: 2 }} />
+
+                  <p className="mb-4 text-center text-[10px] uppercase tracking-[0.4em] text-white/50">
+                    ✦ War #{i + 1} ✦
                   </p>
-                ))}
-              </article>
-            ))}
+
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                    <div className="text-center">
+                      <p className="gradient-shift text-lg font-black">{p.header}</p>
+                      <div className="mt-2 space-y-1">
+                        {p.teamA.map((l, k) => (
+                          <p key={k} className="text-sm text-white/90">🏴‍☠️ {l}</p>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="war-vs text-3xl text-primary">⚔</div>
+                    <div className="text-center">
+                      <p className="text-lg font-black text-white/80">Inimigos</p>
+                      <div className="mt-2 space-y-1">
+                        {p.teamB.map((l, k) => (
+                          <p key={k} className="text-sm text-white/90">☠️ {l}</p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {p.meta.filter((m) => m.type !== "result").length > 0 && (
+                    <div className="mt-4 space-y-2 border-t border-white/10 pt-3 text-center">
+                      {p.meta.filter((m) => m.type === "score").map((m, k) => (
+                        <p key={k} className="text-sm">
+                          <span className="text-[10px] uppercase tracking-widest text-white/50">{m.label} </span>
+                          <span className="gradient-shift text-xl font-black">{m.value}</span>
+                        </p>
+                      ))}
+                      {p.meta.filter((m) => m.type === "notes").map((m, k) => (
+                        <p key={k} className="text-xs italic text-white/70">📝 {m.value}</p>
+                      ))}
+                    </div>
+                  )}
+
+                  {(won || lost) && (
+                    <div
+                      className={`mt-4 rounded-full py-2 text-center text-xs font-black uppercase tracking-[0.3em] ${
+                        won
+                          ? "bg-emerald-500/20 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                          : "bg-red-500/20 text-red-300 shadow-[0_0_20px_rgba(220,38,38,0.4)]"
+                      }`}
+                    >
+                      {won ? "🏆 Zero Order Wins" : "💀 Zero Order Lose"}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
       </div>
