@@ -17,10 +17,19 @@ import {
   fetchDiscordInvite,
   discordProfileUrl,
   youtubeId,
+  parseDiscordEntry,
   type DiscordUser,
   type DiscordInviteInfo,
 } from "@/lib/discord";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import ThemeCustomizer from "@/components/ThemeCustomizer";
+import MusicPlayer from "@/components/MusicPlayer";
 import {
   Accordion,
   AccordionItem,
