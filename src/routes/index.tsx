@@ -367,9 +367,10 @@ function Index() {
         <Tabs defaultValue="rankings" className="w-full">
           <TabsList className="mx-auto mb-8 flex h-auto w-full max-w-4xl flex-wrap justify-center gap-1 bg-white/5 p-1.5 backdrop-blur">
             <TabsTrigger value="rankings">🏆 Rankings</TabsTrigger>
-            <TabsTrigger value="regions">🌍 Regiões & Top S.A</TabsTrigger>
+            <TabsTrigger value="regions">🌍 Regiões</TabsTrigger>
+            <TabsTrigger value="warlog">⚔️ War Log</TabsTrigger>
             <TabsTrigger value="servers">🔗 Servidores</TabsTrigger>
-            <TabsTrigger value="features">⚔️ Crew</TabsTrigger>
+            <TabsTrigger value="features">👑 Crew</TabsTrigger>
             <TabsTrigger value="news">📢 News</TabsTrigger>
             <TabsTrigger value="giveaways">🎁 Sorteios</TabsTrigger>
             <TabsTrigger value="videos">📺 Vídeos</TabsTrigger>
@@ -387,14 +388,20 @@ function Index() {
             </div>
           </TabsContent>
 
-          {/* Top S.A + Regionais (por Discord ID) */}
+          {/* Regionais (por Discord ID) */}
           <TabsContent value="regions">
             {isLoading ? (
               <p className="text-center text-sm text-muted-foreground">Carregando…</p>
             ) : (
-              <RegionServers regions={regions} topSA={topSA} />
+              <RegionServers regions={regions} />
             )}
           </TabsContent>
+
+          {/* War Log */}
+          <TabsContent value="warlog">
+            <WarLogSection record={warRecord} logs={warLogs} isLoading={isLoading} />
+          </TabsContent>
+
 
           {/* Servidores privados (coluna L) */}
           <TabsContent value="servers">
