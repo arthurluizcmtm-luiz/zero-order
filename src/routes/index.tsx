@@ -225,25 +225,9 @@ function YouTubeEmbed({ url }: { url: string }) {
   );
 }
 
-function RegionServers({ regions, topSA }: { regions: string[]; topSA: string[] }) {
+function RegionServers({ regions }: { regions: string[] }) {
   return (
     <div className="space-y-8">
-      <div className="glass rounded-2xl p-6">
-        <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold">
-          <span>👑</span>
-          <span className="gradient-shift">Placar Top S.A</span>
-        </h3>
-        {topSA.length === 0 ? (
-          <ComingSoon />
-        ) : (
-          <div className="grid gap-3">
-            {topSA.map((id, i) => (
-              <DiscordCard key={id + i} id={id} rank={i + 1} />
-            ))}
-          </div>
-        )}
-      </div>
-
       {REGIONS.map((r) => {
         const slice = regions.slice(r.start, r.end).map((v) => v.trim()).filter(Boolean);
         return (
@@ -268,6 +252,7 @@ function RegionServers({ regions, topSA }: { regions: string[]; topSA: string[] 
   );
 }
 
+
 function PrivateServersList({ items }: { items: string[] }) {
   if (items.length === 0) return <ComingSoon />;
   return (
@@ -291,6 +276,78 @@ function PrivateServersList({ items }: { items: string[] }) {
   );
 }
 
+function WarLogSection({
+  record,
+  logs,
+  isLoading,
+}: {
+  record: import("@/lib/sheet.functions").WarRecord | null;
+  logs: import("@/lib/sheet.functions").WarLogItem[];
+  isLoading: boolean;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="glass rounded-2xl p-8 text-center">
+        <h3 className="mb-4 text-sm uppercase tracking-[0.4em] text-white/60">Placar Geral</h3>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Carregando…</p>
+        ) : !record ? (
+          <ComingSoon />
+        ) : (
+          <div className="flex items-center justify-center gap-8">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-white/60">Win</p>
+              <p className="gradient-shift text-5xl font-black">{record.wins}</p>
+            </div>
+            <div className="text-4xl text-white/30">/</div>
+            <div>
+              <p className="text-xs uppercase tracking-widest text-white/60">Loses</p>
+              <p className="text-5xl font-black text-white/80">{record.losses}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="glass rounded-2xl p-6">
+        <h3 className="mb-4 text-2xl font-bold">
+          <span className="gradient-shift">War Logs</span>
+        </h3>
+        {isLoading ? (
+          <p className="text-center text-sm text-muted-foreground">Carregando…</p>
+        ) : logs.length === 0 ? (
+          <ComingSoon />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {logs.map((log, i) => (
+              <article
+                key={i}
+                className="rounded-xl border border-white/10 bg-black/30 p-5 text-center"
+              >
+                {log.lines.map((line, j) => (
+                  <p
+                    key={j}
+                    className={
+                      /^placar|^notes|^zero order (wins|lose)/i.test(line)
+                        ? "mt-2 text-sm font-bold text-primary"
+                        : /^vs\.?$/i.test(line)
+                          ? "my-2 text-xs uppercase tracking-[0.4em] text-white/50"
+                          : "text-sm leading-relaxed text-white/90"
+                    }
+                  >
+                    {line}
+                  </p>
+                ))}
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
 
 function Index() {
   const fetchSheet = useServerFn(fetchSheetData);
@@ -303,8 +360,10 @@ function Index() {
 
 
   const crew = data?.crew ?? [];
-  const topSA = data?.topSA ?? [];
+  const warRecord = data?.warRecord ?? null;
+  const warLogs = data?.warLogs ?? [];
   const skilled = data?.skilled ?? [];
+
   const mobile = data?.mobile ?? [];
   const pc = data?.pc ?? [];
   const consolePlayers = data?.console ?? [];
@@ -380,9 +439,10 @@ function Index() {
         <Tabs defaultValue="rankings" className="w-full">
           <TabsList className="mx-auto mb-8 flex h-auto w-full max-w-4xl flex-wrap justify-center gap-1 bg-white/5 p-1.5 backdrop-blur">
             <TabsTrigger value="rankings">🏆 Rankings</TabsTrigger>
-            <TabsTrigger value="regions">🌍 Regiões & Top S.A</TabsTrigger>
+            <TabsTrigger value="regions">🌍 Regiões</TabsTrigger>
+            <TabsTrigger value="warlog">⚔️ War Log</TabsTrigger>
             <TabsTrigger value="servers">🔗 Servidores</TabsTrigger>
-            <TabsTrigger value="features">⚔️ Crew</TabsTrigger>
+            <TabsTrigger value="features">👑 Crew</TabsTrigger>
             <TabsTrigger value="news">📢 News</TabsTrigger>
             <TabsTrigger value="giveaways">🎁 Sorteios</TabsTrigger>
             <TabsTrigger value="videos">📺 Vídeos</TabsTrigger>
@@ -400,14 +460,20 @@ function Index() {
             </div>
           </TabsContent>
 
-          {/* Top S.A + Regionais (por Discord ID) */}
+          {/* Regionais (por Discord ID) */}
           <TabsContent value="regions">
             {isLoading ? (
               <p className="text-center text-sm text-muted-foreground">Carregando…</p>
             ) : (
-              <RegionServers regions={regions} topSA={topSA} />
+              <RegionServers regions={regions} />
             )}
           </TabsContent>
+
+          {/* War Log */}
+          <TabsContent value="warlog">
+            <WarLogSection record={warRecord} logs={warLogs} isLoading={isLoading} />
+          </TabsContent>
+
 
           {/* Servidores privados (coluna L) */}
           <TabsContent value="servers">
