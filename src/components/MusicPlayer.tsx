@@ -67,7 +67,7 @@ export default function MusicPlayer({ url }: { url: string }) {
           </button>
         </div>
 
-        <audio ref={audioRef} src={src} preload="auto" loop crossOrigin="anonymous" />
+        <audio ref={audioRef} src={src} preload="auto" loop />
 
         {open && (
           <div className="flex items-center gap-2">
