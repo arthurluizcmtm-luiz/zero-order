@@ -58,46 +58,84 @@ const AVATAR_FALLBACK = (id: string) => {
   return `https://cdn.discordapp.com/embed/avatars/${n}.png`;
 };
 
+// Cache em memória + sessionStorage para respostas instantâneas em re-renders.
+const memCache = new Map<string, DiscordUser>();
+const inflight = new Map<string, Promise<DiscordUser>>();
+
+function readSession(id: string): DiscordUser | null {
+  try {
+    const raw = typeof window !== "undefined" ? sessionStorage.getItem("dc:" + id) : null;
+    return raw ? (JSON.parse(raw) as DiscordUser) : null;
+  } catch { return null; }
+}
+function writeSession(id: string, u: DiscordUser) {
+  try { if (typeof window !== "undefined") sessionStorage.setItem("dc:" + id, JSON.stringify(u)); } catch {}
+}
+
+function normalize(clean: string, raw: any): DiscordUser | null {
+  const d = raw?.data ?? raw;
+  if (!d) return null;
+  const username = d.global_name || d.globalName || d.username || null;
+  const handle = d.username || d.tag?.split("#")[0] || null;
+  // Prefer animated (gif) quando disponível.
+  let avatar: string | null =
+    d.avatarURL ||
+    d.avatar?.link ||
+    (typeof d.avatar === "string" && d.avatar.startsWith("http") ? d.avatar : null);
+  // Se veio o hash do avatar, monta URL com gif animado se começar com "a_".
+  const hash = typeof d.avatar === "string" && !d.avatar.startsWith("http") ? d.avatar : d.avatar?.id;
+  if (!avatar && hash) {
+    const ext = String(hash).startsWith("a_") ? "gif" : "png";
+    avatar = `https://cdn.discordapp.com/avatars/${clean}/${hash}.${ext}?size=256`;
+  }
+  if (!username && !avatar) return null;
+  return {
+    id: clean,
+    username: username || clean,
+    handle: handle || clean,
+    avatarUrl: avatar || AVATAR_FALLBACK(clean),
+  };
+}
+
 export async function fetchDiscordUser(id: string): Promise<DiscordUser> {
   const clean = id.trim();
   const fallback: DiscordUser = {
-    id: clean,
-    username: clean,
-    handle: clean,
-    avatarUrl: AVATAR_FALLBACK(clean),
+    id: clean, username: clean, handle: clean, avatarUrl: AVATAR_FALLBACK(clean),
   };
   if (!/^\d{5,25}$/.test(clean)) return fallback;
-  // Tenta múltiplas APIs públicas para robustez.
+  if (memCache.has(clean)) return memCache.get(clean)!;
+  const cached = readSession(clean);
+  if (cached) { memCache.set(clean, cached); return cached; }
+  if (inflight.has(clean)) return inflight.get(clean)!;
+
   const endpoints = [
     `https://japi.rest/discord/v1/user/${clean}`,
     `https://discordlookup.mesalytic.moe/v1/user/${clean}`,
   ];
-  for (const url of endpoints) {
+  // Corrida: retorna o primeiro que responder com dados válidos.
+  const p = (async () => {
     try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const data = await res.json();
-      // japi.rest → { data: { username, global_name, avatarURL } }
-      const d = data.data ?? data;
-      const username = d.global_name || d.globalName || d.username || null;
-      const handle = d.username || d.tag?.split("#")[0] || null;
-      const avatar =
-        d.avatarURL ||
-        d.avatar?.link ||
-        (typeof d.avatar === "string" && d.avatar.startsWith("http") ? d.avatar : null);
-      if (username || avatar) {
-        return {
-          id: clean,
-          username: username || clean,
-          handle: handle || clean,
-          avatarUrl: avatar || AVATAR_FALLBACK(clean),
-        };
-      }
+      const user = await Promise.any(
+        endpoints.map(async (url) => {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error("bad");
+          const data = await res.json();
+          const u = normalize(clean, data);
+          if (!u) throw new Error("empty");
+          return u;
+        }),
+      );
+      memCache.set(clean, user);
+      writeSession(clean, user);
+      return user;
     } catch {
-      /* try next */
+      return fallback;
+    } finally {
+      inflight.delete(clean);
     }
-  }
-  return fallback;
+  })();
+  inflight.set(clean, p);
+  return p;
 }
 
 export function discordProfileUrl(id: string): string {
