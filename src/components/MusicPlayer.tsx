@@ -1,81 +1,52 @@
 import { useEffect, useRef, useState } from "react";
 
-// Extrai o tipo (track/playlist/album/episode) e id de uma URL/URI do Spotify.
-function parseSpotify(url: string): { type: string; id: string } | null {
-  const s = url.trim();
-  if (!s) return null;
-  const m1 = s.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|playlist|album|episode|show)\/([A-Za-z0-9]+)/);
-  if (m1) return { type: m1[1], id: m1[2] };
-  const m2 = s.match(/^spotify:(track|playlist|album|episode|show):([A-Za-z0-9]+)$/);
-  if (m2) return { type: m2[1], id: m2[2] };
-  return null;
-}
-
-// Carrega o Spotify IFrame API uma única vez.
-function loadSpotifyApi(): Promise<any> {
-  return new Promise((resolve) => {
-    const w = window as any;
-    if (w.SpotifyIframeApi) return resolve(w.SpotifyIframeApi);
-    w.onSpotifyIframeApiReady = (api: any) => {
-      w.SpotifyIframeApi = api;
-      resolve(api);
-    };
-    if (!document.getElementById("spotify-iframe-api")) {
-      const s = document.createElement("script");
-      s.id = "spotify-iframe-api";
-      s.src = "https://open.spotify.com/embed/iframe-api/v1";
-      s.async = true;
-      document.body.appendChild(s);
-    }
-  });
-}
-
+// Toca o áudio diretamente a partir de uma URL (mp3/ogg/wav/m4a etc).
+// Não é embed do Spotify — a música toca inteira com controles de volume/mute.
 export default function MusicPlayer({ url }: { url: string }) {
-  const info = parseSpotify(url);
-  const holderRef = useRef<HTMLDivElement | null>(null);
-  const controllerRef = useRef<any>(null);
+  const src = (url ?? "").trim();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [open, setOpen] = useState(true);
+  const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(60);
   const lastVolRef = useRef(60);
 
+  // Aplica volume/mute no <audio>.
   useEffect(() => {
-    if (!info || !holderRef.current) return;
-    let disposed = false;
-    loadSpotifyApi().then((api) => {
-      if (disposed || !holderRef.current) return;
-      // Reset holder
-      holderRef.current.innerHTML = "";
-      const target = document.createElement("div");
-      holderRef.current.appendChild(target);
-      api.createController(
-        target,
-        {
-          uri: `spotify:${info.type}:${info.id}`,
-          width: "100%",
-          height: 152,
-        },
-        (ctrl: any) => {
-          controllerRef.current = ctrl;
-          try { ctrl.setVolume(volume / 100); } catch {}
-        },
-      );
-    });
-    return () => {
-      disposed = true;
-      try { controllerRef.current?.destroy?.(); } catch {}
-      controllerRef.current = null;
+    const a = audioRef.current;
+    if (!a) return;
+    a.volume = (muted ? 0 : volume) / 100;
+    a.muted = muted;
+  }, [volume, muted, src]);
+
+  // Tenta autoplay ao carregar (silencia caso o navegador bloqueie).
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a || !src) return;
+    a.loop = true;
+    const tryPlay = async () => {
+      try {
+        await a.play();
+        setPlaying(true);
+      } catch {
+        setPlaying(false);
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [info?.type, info?.id]);
+    tryPlay();
+  }, [src]);
 
-  useEffect(() => {
-    const c = controllerRef.current;
-    if (!c) return;
-    try { c.setVolume(muted ? 0 : volume / 100); } catch {}
-  }, [volume, muted]);
+  if (!src) return null;
 
-  if (!info) return null;
+  const toggle = async () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) {
+      try { await a.play(); setPlaying(true); } catch {}
+    } else {
+      a.pause();
+      setPlaying(false);
+    }
+  };
 
   return (
     <div className="fixed bottom-4 left-4 z-40 w-[320px] max-w-[calc(100vw-2rem)]">
@@ -96,43 +67,49 @@ export default function MusicPlayer({ url }: { url: string }) {
           </button>
         </div>
 
+        <audio ref={audioRef} src={src} preload="auto" loop crossOrigin="anonymous" />
+
         {open && (
-          <>
-            <div ref={holderRef} className="overflow-hidden rounded-xl" />
-            <div className="mt-3 flex items-center gap-2">
-              <button
-                onClick={() => {
-                  if (muted) {
-                    setMuted(false);
-                    if (volume === 0) setVolume(lastVolRef.current || 60);
-                  } else {
-                    lastVolRef.current = volume;
-                    setMuted(true);
-                  }
-                }}
-                className="shrink-0 rounded-full bg-primary/80 px-3 py-1 text-xs font-bold text-primary-foreground hover:bg-primary"
-                aria-label={muted ? "Ativar som" : "Silenciar"}
-              >
-                {muted || volume === 0 ? "🔇" : volume < 40 ? "🔈" : volume < 75 ? "🔉" : "🔊"}
-              </button>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={muted ? 0 : volume}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  setVolume(v);
-                  if (v > 0 && muted) setMuted(false);
-                }}
-                className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/20 accent-[var(--theme-primary)]"
-                aria-label="Volume"
-              />
-              <span className="w-8 shrink-0 text-right text-[10px] font-mono text-white/70">
-                {muted ? 0 : volume}
-              </span>
-            </div>
-          </>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggle}
+              className="shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:scale-105"
+              aria-label={playing ? "Pausar" : "Tocar"}
+            >
+              {playing ? "⏸" : "▶"}
+            </button>
+            <button
+              onClick={() => {
+                if (muted) {
+                  setMuted(false);
+                  if (volume === 0) setVolume(lastVolRef.current || 60);
+                } else {
+                  lastVolRef.current = volume;
+                  setMuted(true);
+                }
+              }}
+              className="shrink-0 rounded-full bg-primary/80 px-3 py-1 text-xs font-bold text-primary-foreground hover:bg-primary"
+              aria-label={muted ? "Ativar som" : "Silenciar"}
+            >
+              {muted || volume === 0 ? "🔇" : volume < 40 ? "🔈" : volume < 75 ? "🔉" : "🔊"}
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={muted ? 0 : volume}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setVolume(v);
+                if (v > 0 && muted) setMuted(false);
+              }}
+              className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/20 accent-[var(--theme-primary)]"
+              aria-label="Volume"
+            />
+            <span className="w-8 shrink-0 text-right text-[10px] font-mono text-white/70">
+              {muted ? 0 : volume}
+            </span>
+          </div>
         )}
       </div>
     </div>

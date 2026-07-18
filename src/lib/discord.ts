@@ -36,17 +36,19 @@ export type DiscordEntry = {
 export function parseDiscordEntry(raw: string): DiscordEntry | null {
   const s = (raw ?? "").trim();
   if (!s) return null;
-  const idMatch = s.match(/<@!?(\d{5,25})>/);
+  // Sempre o PRIMEIRO <...> é o ID (aceita <@ID>, <@!ID> ou <ID>).
+  const firstTag = s.match(/<@?!?(\d{5,25})>/);
+  const id: string | null = firstTag ? firstTag[1] : null;
+  // Flag opcional <True> / <False> em qualquer posição.
   const flagMatch = s.match(/<\s*(true|false)\s*>/i);
-  // remove todos os <...> para obter o nome fallback
+  // Nome fallback = tudo fora de qualquer <...>
   const name = s.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
-  let id: string | null = idMatch ? idMatch[1] : null;
-  // Compat: célula com apenas dígitos = ID cru
-  if (!id && /^\d{5,25}$/.test(name)) id = name;
+  const fallbackName = name && !/^\d{5,25}$/.test(name) ? name : "";
+  const rawId = !id && /^\d{5,25}$/.test(s) ? s : null; // compat: célula com só o ID cru
   return {
     raw: s,
-    id,
-    fallbackName: name && !/^\d{5,25}$/.test(name) ? name : "",
+    id: id ?? rawId,
+    fallbackName,
     forceFallback: flagMatch ? flagMatch[1].toLowerCase() === "true" : false,
   };
 }

@@ -156,7 +156,7 @@
   border-radius: 1rem;
   overflow: hidden;
 }
-@utility war-card::before {
+.war-card::before {
   content: "";
   position: absolute;
   inset: 0;

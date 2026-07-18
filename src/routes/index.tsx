@@ -110,7 +110,9 @@ function DiscordCard({ entry, rank }: { entry: string; rank: number }) {
   const { data } = useQuery<DiscordUser>({
     queryKey: ["discord-user", id],
     queryFn: () => fetchDiscordUser(id),
-    staleTime: 5 * 60_000,
+    staleTime: 30_000,
+    refetchOnMount: true,
+    retry: 2,
     enabled: shouldFetch,
   });
 
