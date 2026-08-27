@@ -1,52 +1,72 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { youtubeId } from "@/lib/discord";
 
-// Toca o áudio diretamente a partir de uma URL (mp3/ogg/wav/m4a etc).
-// Não é embed do Spotify — a música toca inteira com controles de volume/mute.
+type Kind = "audio" | "youtube" | "spotify" | "none";
+
+function spotifyEmbed(url: string): string | null {
+  const m = url.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|playlist|album|episode)\/([A-Za-z0-9]+)/);
+  return m ? `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator` : null;
+}
+
+// Toca música a partir da célula M1 da planilha.
+// Suporta: link direto (mp3/ogg/wav/m4a), YouTube (toca inteira) e Spotify (embed).
 export default function MusicPlayer({ url }: { url: string }) {
   const src = (url ?? "").trim();
+
+  const kind: Kind = useMemo(() => {
+    if (!src) return "none";
+    if (/open\.spotify\.com/.test(src)) return "spotify";
+    if (youtubeId(src)) return "youtube";
+    return "audio";
+  }, [src]);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const ytRef = useRef<HTMLIFrameElement | null>(null);
   const [open, setOpen] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(60);
   const lastVolRef = useRef(60);
 
-  // Aplica volume/mute no <audio>.
-  useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    a.volume = (muted ? 0 : volume) / 100;
-    a.muted = muted;
-  }, [volume, muted, src]);
+  const ytCommand = (func: string, args: unknown[] = []) => {
+    ytRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func, args }),
+      "*",
+    );
+  };
 
-  // Tenta autoplay ao carregar (silencia caso o navegador bloqueie).
+  // Volume / mute
   useEffect(() => {
-    const a = audioRef.current;
-    if (!a || !src) return;
-    a.loop = true;
-    const tryPlay = async () => {
-      try {
-        await a.play();
-        setPlaying(true);
-      } catch {
-        setPlaying(false);
-      }
-    };
-    tryPlay();
-  }, [src]);
+    if (kind === "audio") {
+      const a = audioRef.current;
+      if (!a) return;
+      a.volume = (muted ? 0 : volume) / 100;
+      a.muted = muted;
+    } else if (kind === "youtube") {
+      ytCommand("setVolume", [muted ? 0 : volume]);
+      ytCommand(muted ? "mute" : "unMute");
+    }
+  }, [volume, muted, kind, src]);
 
-  if (!src) return null;
+  if (kind === "none") return null;
 
   const toggle = async () => {
-    const a = audioRef.current;
-    if (!a) return;
-    if (a.paused) {
-      try { await a.play(); setPlaying(true); } catch {}
-    } else {
-      a.pause();
-      setPlaying(false);
+    if (kind === "audio") {
+      const a = audioRef.current;
+      if (!a) return;
+      if (a.paused) {
+        try { await a.play(); setPlaying(true); } catch {}
+      } else { a.pause(); setPlaying(false); }
+      return;
+    }
+    if (kind === "youtube") {
+      ytCommand(playing ? "pauseVideo" : "playVideo");
+      setPlaying((v) => !v);
     }
   };
+
+  const ytId = kind === "youtube" ? youtubeId(src) : null;
+  const spUrl = kind === "spotify" ? spotifyEmbed(src) : null;
 
   return (
     <div className="fixed bottom-4 left-4 z-40 w-[320px] max-w-[calc(100vw-2rem)]">
@@ -67,9 +87,35 @@ export default function MusicPlayer({ url }: { url: string }) {
           </button>
         </div>
 
-        <audio ref={audioRef} src={src} preload="auto" loop />
+        {kind === "audio" && <audio ref={audioRef} src={src} preload="auto" loop />}
 
-        {open && (
+        {kind === "youtube" && ytId && (
+          <iframe
+            ref={ytRef}
+            title="Zero Order Radio"
+            className="h-0 w-0 border-0"
+            src={`https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&loop=1&playlist=${ytId}&controls=0`}
+            allow="autoplay; encrypted-media"
+          />
+        )}
+
+        {open && kind === "spotify" && spUrl && (
+          <div className="overflow-hidden rounded-xl">
+            <iframe
+              title="Spotify"
+              src={spUrl}
+              className="h-[152px] w-full border-0"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+              loading="lazy"
+            />
+            <p className="mt-1 text-[10px] leading-tight text-white/50">
+              Spotify só toca a faixa inteira se você estiver logado no Spotify neste navegador.
+              Para tocar 100% para todo mundo, use um link do YouTube ou .mp3 na M1.
+            </p>
+          </div>
+        )}
+
+        {open && kind !== "spotify" && (
           <div className="flex items-center gap-2">
             <button
               onClick={toggle}

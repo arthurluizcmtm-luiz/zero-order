@@ -43,7 +43,10 @@ export type SheetData = {
   faq: FaqItem[];
   news: NewsItem[];
   giveaways: GiveawayItem[];
-  regions: string[]; // 60 slots (10 por região) — IDs de Discord
+  regions: string[]; // J: 60 slots (10 por região) — geral
+  regionsMobile: string[]; // N: 60 slots
+  regionsPc: string[]; // O: 60 slots
+  regionsConsole: string[]; // P: 60 slots
   youtube: string[];
   privateServers: string[]; // coluna L
   spotifyUrl: string; // M1
@@ -53,9 +56,11 @@ export type SheetData = {
 
 const EMPTY: SheetData = {
   crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
-  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [],
+  faq: [], news: [], giveaways: [], regions: [], regionsMobile: [], regionsPc: [],
+  regionsConsole: [], youtube: [], privateServers: [],
   spotifyUrl: "", discordUrl: "",
 };
+
 
 
 function pairs<T>(col: string[], make: (a: string, b: string) => T): T[] {
@@ -107,6 +112,9 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawH: string[] = [];
       const rawI: string[] = [];
       const rawJ: string[] = new Array(60).fill("");
+      const rawN: string[] = new Array(60).fill("");
+      const rawO: string[] = new Array(60).fill("");
+      const rawP: string[] = new Array(60).fill("");
       const rawK: string[] = [];
       const rawL: string[] = [];
       let discordUrl = "";
@@ -124,7 +132,13 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         rawG.push(r[6] ?? "");
         rawH.push(r[7] ?? "");
         rawI.push(r[8] ?? "");
-        if (i < 60) rawJ[i] = (r[9] ?? "").trim();
+        if (i < 60) {
+          rawJ[i] = (r[9] ?? "").trim();
+          rawN[i] = (r[13] ?? "").trim();
+          rawO[i] = (r[14] ?? "").trim();
+          rawP[i] = (r[15] ?? "").trim();
+        }
+
         const k = (r[10] ?? "").trim();
         if (k) rawK.push(k);
         const l = (r[11] ?? "").trim();
@@ -175,6 +189,10 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         news: pairs(rawH, (t, d) => ({ title: t, description: d })),
         giveaways,
         regions: rawJ,
+        regionsMobile: rawN,
+        regionsPc: rawO,
+        regionsConsole: rawP,
+
         youtube: rawK,
         privateServers: rawL,
         spotifyUrl,
