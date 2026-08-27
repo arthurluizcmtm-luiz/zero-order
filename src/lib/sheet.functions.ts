@@ -189,6 +189,10 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         news: pairs(rawH, (t, d) => ({ title: t, description: d })),
         giveaways,
         regions: rawJ,
+        regionsMobile: rawN,
+        regionsPc: rawO,
+        regionsConsole: rawP,
+
         youtube: rawK,
         privateServers: rawL,
         spotifyUrl,
