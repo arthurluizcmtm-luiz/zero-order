@@ -112,6 +112,9 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawH: string[] = [];
       const rawI: string[] = [];
       const rawJ: string[] = new Array(60).fill("");
+      const rawN: string[] = new Array(60).fill("");
+      const rawO: string[] = new Array(60).fill("");
+      const rawP: string[] = new Array(60).fill("");
       const rawK: string[] = [];
       const rawL: string[] = [];
       let discordUrl = "";
@@ -129,7 +132,13 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         rawG.push(r[6] ?? "");
         rawH.push(r[7] ?? "");
         rawI.push(r[8] ?? "");
-        if (i < 60) rawJ[i] = (r[9] ?? "").trim();
+        if (i < 60) {
+          rawJ[i] = (r[9] ?? "").trim();
+          rawN[i] = (r[13] ?? "").trim();
+          rawO[i] = (r[14] ?? "").trim();
+          rawP[i] = (r[15] ?? "").trim();
+        }
+
         const k = (r[10] ?? "").trim();
         if (k) rawK.push(k);
         const l = (r[11] ?? "").trim();
