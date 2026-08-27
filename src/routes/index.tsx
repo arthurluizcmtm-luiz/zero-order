@@ -256,33 +256,88 @@ function YouTubeEmbed({ url }: { url: string }) {
   );
 }
 
-function RegionServers({ regions }: { regions: string[] }) {
-  return (
-    <div className="space-y-8">
-      {REGIONS.map((r) => {
-        const slice = regions.slice(r.start, r.end).map((v) => v.trim()).filter(Boolean);
-        return (
-          <div key={r.key} className="glass rounded-2xl p-6">
-            <h3 className="mb-4 flex items-center gap-2 text-2xl font-bold">
-              <span>{r.flag}</span>
-              <span className="gradient-shift">Top {r.label}</span>
-            </h3>
-            {slice.length === 0 ? (
-              <ComingSoon />
-            ) : (
-              <div className="grid gap-3">
-                {slice.map((id, i) => (
-                  <DiscordCard key={id + i} entry={id} rank={i + 1} />
+type Platform = "geral" | "mobile" | "pc" | "console";
 
-                ))}
+const PLATFORMS: { key: Platform; label: string; icon: string }[] = [
+  { key: "geral", label: "Geral", icon: "🌐" },
+  { key: "mobile", label: "Mobile", icon: "📱" },
+  { key: "pc", label: "PC", icon: "🖥️" },
+  { key: "console", label: "Console", icon: "🎮" },
+];
+
+function RegionsDashboard({ data }: { data: SheetData | undefined }) {
+  const [platform, setPlatform] = useState<Platform>("geral");
+  const [openRegion, setOpenRegion] = useState<string | null>(null);
+
+  const source =
+    platform === "mobile" ? data?.regionsMobile
+    : platform === "pc" ? data?.regionsPc
+    : platform === "console" ? data?.regionsConsole
+    : data?.regions;
+  const slots = source ?? [];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2">
+        {PLATFORMS.map((p) => (
+          <button
+            key={p.key}
+            onClick={() => setPlatform(p.key)}
+            className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest transition ${
+              platform === p.key
+                ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(var(--theme-primary-rgb),0.6)]"
+                : "border border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+            }`}
+          >
+            {p.icon} {p.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {REGIONS.map((r) => {
+          const list = slots.slice(r.start, r.end).map((v) => v.trim()).filter(Boolean);
+          const expanded = openRegion === r.key;
+          return (
+            <div key={r.key} className="glass rounded-2xl p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em]">
+                  <span className="text-lg">{r.flag}</span>
+                  <span className="gradient-shift">{r.label}</span>
+                </h3>
+                <span className="rounded-full border border-white/15 px-2 py-0.5 text-[10px] text-white/60">
+                  {list.length}/10
+                </span>
               </div>
-            )}
-          </div>
-        );
-      })}
+              {list.length === 0 ? (
+                <p className="py-4 text-center text-xs uppercase tracking-widest text-white/40">
+                  Coming Soon...
+                </p>
+              ) : (
+                <>
+                  <div className="grid gap-2">
+                    {(expanded ? list : list.slice(0, 3)).map((id, i) => (
+                      <DiscordCard key={id + i} entry={id} rank={i + 1} />
+                    ))}
+                  </div>
+                  {list.length > 3 && (
+                    <button
+                      onClick={() => setOpenRegion(expanded ? null : r.key)}
+                      className="mt-3 w-full rounded-full border border-white/15 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white/70 hover:bg-white/10"
+                    >
+                      {expanded ? "Fechar" : `Ver top 10 →`}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
 
 
 function PrivateServersList({ items }: { items: string[] }) {
