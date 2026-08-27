@@ -43,7 +43,10 @@ export type SheetData = {
   faq: FaqItem[];
   news: NewsItem[];
   giveaways: GiveawayItem[];
-  regions: string[]; // 60 slots (10 por região) — IDs de Discord
+  regions: string[]; // J: 60 slots (10 por região) — geral
+  regionsMobile: string[]; // N: 60 slots
+  regionsPc: string[]; // O: 60 slots
+  regionsConsole: string[]; // P: 60 slots
   youtube: string[];
   privateServers: string[]; // coluna L
   spotifyUrl: string; // M1
@@ -53,9 +56,11 @@ export type SheetData = {
 
 const EMPTY: SheetData = {
   crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
-  faq: [], news: [], giveaways: [], regions: [], youtube: [], privateServers: [],
+  faq: [], news: [], giveaways: [], regions: [], regionsMobile: [], regionsPc: [],
+  regionsConsole: [], youtube: [], privateServers: [],
   spotifyUrl: "", discordUrl: "",
 };
+
 
 
 function pairs<T>(col: string[], make: (a: string, b: string) => T): T[] {
