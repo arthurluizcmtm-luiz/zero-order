@@ -506,6 +506,37 @@ function WarLogSection({
 
 
 
+type SectionKey =
+  | "home" | "crew" | "regions" | "rankings" | "warlog"
+  | "servers" | "news" | "giveaways" | "videos" | "resources" | "faq" | "donate";
+
+const NAV: { key: SectionKey; label: string; icon: string }[] = [
+  { key: "home", label: "Início", icon: "🏠" },
+  { key: "crew", label: "Melhores da Crew", icon: "👑" },
+  { key: "regions", label: "Regiões", icon: "🌍" },
+  { key: "rankings", label: "Rankings", icon: "🏆" },
+  { key: "warlog", label: "War Log", icon: "⚔️" },
+  { key: "servers", label: "Servidores", icon: "🔗" },
+  { key: "news", label: "News", icon: "📢" },
+  { key: "giveaways", label: "Sorteios", icon: "🎁" },
+  { key: "videos", label: "Vídeos", icon: "📺" },
+  { key: "resources", label: "Recursos", icon: "📖" },
+  { key: "faq", label: "FAQ", icon: "❓" },
+  { key: "donate", label: "Donate", icon: "💖" },
+];
+
+function SectionTitle({ icon, title, subtitle }: { icon: string; title: string; subtitle?: string }) {
+  return (
+    <div className="mb-6">
+      <h2 className="flex items-center gap-3 text-3xl font-black">
+        <span>{icon}</span>
+        <span className="gradient-shift">{title}</span>
+      </h2>
+      {subtitle && <p className="mt-1 text-sm text-white/60">{subtitle}</p>}
+    </div>
+  );
+}
+
 function Index() {
   const fetchSheet = useServerFn(fetchSheetData);
   const { data, isLoading } = useQuery({
@@ -515,22 +546,21 @@ function Index() {
     refetchOnWindowFocus: true,
   });
 
+  const [section, setSection] = useState<SectionKey>("home");
 
   const crew = data?.crew ?? [];
   const warRecord = data?.warRecord ?? null;
   const warLogs = data?.warLogs ?? [];
   const skilled = data?.skilled ?? [];
-
   const mobile = data?.mobile ?? [];
   const pc = data?.pc ?? [];
   const consolePlayers = data?.console ?? [];
   const sheetFaq = data?.faq ?? [];
   const news = data?.news ?? [];
   const giveaways = data?.giveaways ?? [];
-  const regions = data?.regions ?? [];
   const youtube = data?.youtube ?? [];
   const privateServers = data?.privateServers ?? [];
-  const spotifyUrl = data?.spotifyUrl?.trim() || "";
+  const musicUrl = data?.spotifyUrl?.trim() || "";
   const sheetError = data?.error;
   const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
@@ -538,206 +568,236 @@ function Index() {
   return (
     <div className="min-h-screen font-body">
       <ThemeCustomizer />
-      {spotifyUrl && <MusicPlayer url={spotifyUrl} />}
+      {musicUrl && <MusicPlayer url={musicUrl} />}
 
-
-      {/* Hero */}
-      <header className="mx-auto max-w-6xl px-6 pt-16 pb-10 text-center">
-        <p className="mb-4 text-sm uppercase tracking-[0.5em] text-primary/80">Blox Fruits Crew</p>
-        <h1 className="float text-6xl font-black tracking-wider md:text-8xl">
-          <span className="gradient-shift">ZERO ORDER</span>
-        </h1>
-        <p className="mx-auto mt-8 max-w-3xl text-lg leading-relaxed text-foreground/90 md:text-xl">
-          {CREW_DESCRIPTION}
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <div className="rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs uppercase tracking-widest">
-            Fundada em 14/07/26
-          </div>
-          <a
-            href={discordUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pulse-glow rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:scale-105"
-          >
-            💬 Entrar no Discord
-          </a>
-        </div>
-      </header>
-
-      {sheetError && (
-        <section className="mx-auto max-w-6xl px-6">
-          <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 text-sm text-yellow-200/90">
-            {sheetError}
-          </div>
-        </section>
-      )}
-
-      {/* Crew + Discord */}
-      <section className="mx-auto grid max-w-6xl gap-6 px-6 py-8 md:grid-cols-3">
-        <div className="glass rounded-2xl p-6 md:col-span-2">
-          <h2 className="mb-6 text-center text-3xl font-bold">
-            <span className="gradient-shift">Os Melhores da Crew</span>
-          </h2>
-          {isLoading ? (
-            <p className="text-center text-sm text-muted-foreground">Carregando planilha…</p>
-          ) : crew.length === 0 ? (
-            <ComingSoon />
-          ) : (
-            <div className="grid max-h-[640px] gap-3 overflow-y-auto pr-2 sm:grid-cols-2">
-              {crew.map((id, i) => (
-                <DiscordCard key={id + i} entry={id} rank={i + 1} />
+      <div className="mx-auto flex max-w-[1500px] flex-col lg:flex-row">
+        {/* Sidebar */}
+        <aside className="lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:overflow-y-auto">
+          <div className="glass m-3 rounded-2xl p-4 lg:m-4">
+            <div className="mb-5 text-center">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-primary/80">Blox Fruits Crew</p>
+              <h1 className="gradient-shift text-2xl font-black tracking-wider">ZERO ORDER</h1>
+            </div>
+            <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+              {NAV.map((n) => (
+                <button
+                  key={n.key}
+                  onClick={() => setSection(n.key)}
+                  className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold transition lg:w-full ${
+                    section === n.key
+                      ? "bg-primary/20 text-white shadow-[inset_0_0_0_1px_rgba(var(--theme-primary-rgb),0.6)]"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <span>{n.icon}</span>
+                  <span className="whitespace-nowrap">{n.label}</span>
+                </button>
               ))}
+            </nav>
+            <a
+              href={discordUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pulse-glow mt-5 block rounded-xl bg-primary px-4 py-2 text-center text-xs font-black uppercase tracking-widest text-primary-foreground hover:scale-[1.03]"
+            >
+              💬 Discord
+            </a>
+          </div>
+        </aside>
+
+        {/* Conteúdo */}
+        <main className="min-w-0 flex-1 px-4 py-4 lg:px-8 lg:py-8">
+          {sheetError && (
+            <div className="mb-6 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 text-sm text-yellow-200/90">
+              {sheetError}
             </div>
           )}
-        </div>
-        <DiscordInviteBanner url={discordUrl} />
-      </section>
 
-      {/* Tabs principais */}
-      <section className="mx-auto max-w-6xl px-6 py-8">
-        <Tabs defaultValue="rankings" className="w-full">
-          <TabsList className="mx-auto mb-8 flex h-auto w-full max-w-4xl flex-wrap justify-center gap-1 bg-white/5 p-1.5 backdrop-blur">
-            <TabsTrigger value="rankings">🏆 Rankings</TabsTrigger>
-            <TabsTrigger value="regions">🌍 Regiões</TabsTrigger>
-            <TabsTrigger value="warlog">⚔️ War Log</TabsTrigger>
-            <TabsTrigger value="servers">🔗 Servidores</TabsTrigger>
-            <TabsTrigger value="features">👑 Crew</TabsTrigger>
-            <TabsTrigger value="news">📢 News</TabsTrigger>
-            <TabsTrigger value="giveaways">🎁 Sorteios</TabsTrigger>
-            <TabsTrigger value="videos">📺 Vídeos</TabsTrigger>
-            <TabsTrigger value="resources">📖 Recursos</TabsTrigger>
-            <TabsTrigger value="faq">❓ FAQ</TabsTrigger>
-          </TabsList>
+          {section === "home" && (
+            <div className="space-y-6">
+              <div className="glass relative overflow-hidden rounded-3xl p-8 text-center md:p-12">
+                <h2 className="float text-5xl font-black tracking-wider md:text-7xl">
+                  <span className="gradient-shift">ZERO ORDER</span>
+                </h2>
+                <p className="mx-auto mt-6 max-w-3xl leading-relaxed text-foreground/90">
+                  {CREW_DESCRIPTION}
+                </p>
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  <span className="rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs uppercase tracking-widest">
+                    Fundada em 14/07/26
+                  </span>
+                  <button
+                    onClick={() => setSection("regions")}
+                    className="rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-widest hover:bg-white/10"
+                  >
+                    Ver rankings →
+                  </button>
+                </div>
+              </div>
 
-          {/* Rankings por Categoria */}
-          <TabsContent value="rankings">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <RankList title="Skilled" emoji="⚔️" items={skilled} isLoading={isLoading} error={sheetError} />
-              <RankList title="Mobile" emoji="📱" items={mobile} isLoading={isLoading} error={sheetError} />
-              <RankList title="PC" emoji="🖥️" items={pc} isLoading={isLoading} error={sheetError} />
-              <RankList title="Console" emoji="🎮" items={consolePlayers} isLoading={isLoading} error={sheetError} />
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="glass rounded-2xl p-6 text-center">
+                  <p className="text-[10px] uppercase tracking-widest text-white/50">Melhores da Crew</p>
+                  <p className="gradient-shift text-5xl font-black">{crew.length}</p>
+                </div>
+                <div className="glass rounded-2xl p-6 text-center">
+                  <p className="text-[10px] uppercase tracking-widest text-white/50">Wars vencidas</p>
+                  <p className="gradient-shift text-5xl font-black">{warRecord?.wins ?? 0}</p>
+                </div>
+                <div className="glass rounded-2xl p-6 text-center">
+                  <p className="text-[10px] uppercase tracking-widest text-white/50">Sorteios ativos</p>
+                  <p className="gradient-shift text-5xl font-black">{giveaways.length}</p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <RegionsDashboard data={data} />
+                </div>
+                <DiscordInviteBanner url={discordUrl} />
+              </div>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Regionais (por Discord ID) */}
-          <TabsContent value="regions">
-            {isLoading ? (
-              <p className="text-center text-sm text-muted-foreground">Carregando…</p>
-            ) : (
-              <RegionServers regions={regions} />
-            )}
-          </TabsContent>
-
-          {/* War Log */}
-          <TabsContent value="warlog">
-            <WarLogSection record={warRecord} logs={warLogs} isLoading={isLoading} />
-          </TabsContent>
-
-
-          {/* Servidores privados (coluna L) */}
-          <TabsContent value="servers">
-            <div className="glass rounded-2xl p-6">
-              <h3 className="mb-4 text-2xl font-bold">
-                <span className="gradient-shift">Servidores Privados</span>
-              </h3>
+          {section === "crew" && (
+            <div>
+              <SectionTitle icon="👑" title="Os Melhores da Crew" subtitle="Coluna A da planilha" />
               {isLoading ? (
-                <p className="text-center text-sm text-muted-foreground">Carregando…</p>
+                <p className="text-sm text-muted-foreground">Carregando planilha…</p>
+              ) : crew.length === 0 ? (
+                <ComingSoon />
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {crew.map((id, i) => (
+                    <DiscordCard key={id + i} entry={id} rank={i + 1} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {section === "regions" && (
+            <div>
+              <SectionTitle icon="🌍" title="Regiões" subtitle="Top 10 por região e plataforma" />
+              <RegionsDashboard data={data} />
+            </div>
+          )}
+
+          {section === "rankings" && (
+            <div>
+              <SectionTitle icon="🏆" title="Rankings por Categoria" />
+              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+                <RankList title="Skilled" emoji="⚔️" items={skilled} isLoading={isLoading} error={sheetError} />
+                <RankList title="Mobile" emoji="📱" items={mobile} isLoading={isLoading} error={sheetError} />
+                <RankList title="PC" emoji="🖥️" items={pc} isLoading={isLoading} error={sheetError} />
+                <RankList title="Console" emoji="🎮" items={consolePlayers} isLoading={isLoading} error={sheetError} />
+              </div>
+            </div>
+          )}
+
+          {section === "warlog" && (
+            <div>
+              <SectionTitle icon="⚔️" title="War Log" />
+              <WarLogSection record={warRecord} logs={warLogs} isLoading={isLoading} />
+            </div>
+          )}
+
+          {section === "servers" && (
+            <div>
+              <SectionTitle icon="🔗" title="Servidores Privados" subtitle="Clique e entre direto no Roblox" />
+              {isLoading ? (
+                <p className="text-sm text-muted-foreground">Carregando…</p>
               ) : (
                 <PrivateServersList items={privateServers} />
               )}
             </div>
-          </TabsContent>
+          )}
 
-          {/* Crew features */}
-          <TabsContent value="features">
-            <div className="grid gap-6 md:grid-cols-2">
-              {FEATURES.map((f) => (
-                <div key={f.title} className="glass rounded-2xl p-6">
-                  <h3 className="mb-3 text-2xl font-bold text-primary">{f.title}</h3>
-                  <p className="leading-relaxed text-foreground/85">{f.description}</p>
+          {section === "news" && (
+            <div>
+              <SectionTitle icon="📢" title="News do Server" />
+              {news.length === 0 ? (
+                <ComingSoon />
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {news.map((n, i) => (
+                    <div key={i} className="glass rounded-2xl p-6">
+                      <h3 className="mb-2 text-xl font-bold text-primary">{n.title}</h3>
+                      <p className="leading-relaxed text-foreground/85">{n.description}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          </TabsContent>
+          )}
 
-          {/* News */}
-          <TabsContent value="news">
-            {news.length === 0 ? (
-              <ComingSoon />
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {news.map((n, i) => (
-                  <div key={i} className="glass rounded-2xl p-6">
-                    <h3 className="mb-2 text-xl font-bold text-primary">{n.title}</h3>
-                    <p className="leading-relaxed text-foreground/85">{n.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Sorteios */}
-          <TabsContent value="giveaways">
-            {isLoading ? (
-              <p className="text-center text-sm text-muted-foreground">Carregando…</p>
-            ) : giveaways.length === 0 ? (
-              <div className="glass rounded-2xl p-10 text-center">
-                <div className="mb-3 text-5xl">🎁</div>
-                <p className="gradient-shift text-2xl font-bold">Sem Sorteio no Momento</p>
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {giveaways.map((g, i) => (
-                  <div key={i} className="glass rounded-2xl p-6 text-center">
-                    <div className="mb-3 text-3xl">🎁</div>
-                    <h3 className="mb-2 text-xl font-bold text-primary">{g.prize}</h3>
-                    <p className="text-sm uppercase tracking-widest text-white/80">
-                      Termina em: <span className="font-bold text-white">{g.endsAt || "—"}</span>
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Vídeos YouTube */}
-          <TabsContent value="videos">
-            {youtube.length === 0 ? (
-              <ComingSoon />
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2">
-                {youtube.map((url, i) => (
-                  <YouTubeEmbed key={i} url={url} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Recursos externos */}
-          <TabsContent value="resources">
-            <div className="grid gap-6 md:grid-cols-3">
-              <a href="https://blox-fruits.fandom.com/wiki/Blox_Fruits_Wiki" target="_blank" rel="noopener noreferrer" className="glass block rounded-2xl p-6 hover:scale-[1.03]">
-                <div className="mb-3 text-3xl">📖</div>
-                <h3 className="mb-2 text-xl font-bold text-primary">Wiki Oficial</h3>
-                <p className="text-sm text-foreground/85">Guia completo de frutas, ilhas, chefes, quests e builds.</p>
-              </a>
-              <a href="https://gamerrobot.com/blogs/news" target="_blank" rel="noopener noreferrer" className="glass block rounded-2xl p-6 hover:scale-[1.03]">
-                <div className="mb-3 text-3xl">📰</div>
-                <h3 className="mb-2 text-xl font-bold text-primary">Boletim Oficial</h3>
-                <p className="text-sm text-foreground/85">Novidades, atualizações e patch notes direto da Gamer Robot.</p>
-              </a>
-              <a href="https://www.roblox.com/games/2753915549/Blox-Fruits" target="_blank" rel="noopener noreferrer" className="glass block rounded-2xl p-6 hover:scale-[1.03]">
-                <div className="mb-3 text-3xl">🎮</div>
-                <h3 className="mb-2 text-xl font-bold text-primary">Jogar Blox Fruits</h3>
-                <p className="text-sm text-foreground/85">Entre no jogo e junte-se à Zero Order rumo ao topo.</p>
-              </a>
+          {section === "giveaways" && (
+            <div>
+              <SectionTitle icon="🎁" title="Sorteios" />
+              {isLoading ? (
+                <p className="text-sm text-muted-foreground">Carregando…</p>
+              ) : giveaways.length === 0 ? (
+                <div className="glass rounded-2xl p-10 text-center">
+                  <div className="mb-3 text-5xl">🎁</div>
+                  <p className="gradient-shift text-2xl font-bold">Sem Sorteio no Momento</p>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {giveaways.map((g, i) => (
+                    <div key={i} className="glass rounded-2xl p-6 text-center">
+                      <div className="mb-3 text-3xl">🎁</div>
+                      <h3 className="mb-2 text-xl font-bold text-primary">{g.prize}</h3>
+                      <p className="text-sm uppercase tracking-widest text-white/80">
+                        Termina em: <span className="font-bold text-white">{g.endsAt || "—"}</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </TabsContent>
+          )}
 
-          {/* FAQ */}
-          <TabsContent value="faq">
+          {section === "videos" && (
+            <div>
+              <SectionTitle icon="📺" title="Vídeos" />
+              {youtube.length === 0 ? (
+                <ComingSoon />
+              ) : (
+                <div className="grid gap-6 md:grid-cols-2">
+                  {youtube.map((url, i) => (
+                    <YouTubeEmbed key={i} url={url} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {section === "resources" && (
+            <div>
+              <SectionTitle icon="📖" title="Recursos de Blox Fruits" />
+              <div className="grid gap-6 md:grid-cols-3">
+                <a href="https://blox-fruits.fandom.com/wiki/Blox_Fruits_Wiki" target="_blank" rel="noopener noreferrer" className="glass block rounded-2xl p-6 hover:scale-[1.03]">
+                  <div className="mb-3 text-3xl">📖</div>
+                  <h3 className="mb-2 text-xl font-bold text-primary">Wiki Oficial</h3>
+                  <p className="text-sm text-foreground/85">Guia completo de frutas, ilhas, chefes, quests e builds.</p>
+                </a>
+                <a href="https://gamerrobot.com/blogs/news" target="_blank" rel="noopener noreferrer" className="glass block rounded-2xl p-6 hover:scale-[1.03]">
+                  <div className="mb-3 text-3xl">📰</div>
+                  <h3 className="mb-2 text-xl font-bold text-primary">Boletim Oficial</h3>
+                  <p className="text-sm text-foreground/85">Novidades, atualizações e patch notes direto da Gamer Robot.</p>
+                </a>
+                <a href="https://www.roblox.com/games/2753915549/Blox-Fruits" target="_blank" rel="noopener noreferrer" className="glass block rounded-2xl p-6 hover:scale-[1.03]">
+                  <div className="mb-3 text-3xl">🎮</div>
+                  <h3 className="mb-2 text-xl font-bold text-primary">Jogar Blox Fruits</h3>
+                  <p className="text-sm text-foreground/85">Entre no jogo e junte-se à Zero Order rumo ao topo.</p>
+                </a>
+              </div>
+            </div>
+          )}
+
+          {section === "faq" && (
             <div className="mx-auto max-w-3xl">
+              <SectionTitle icon="❓" title="FAQ" />
               {faqItems.length === 0 ? (
                 <ComingSoon />
               ) : (
@@ -757,19 +817,33 @@ function Index() {
                 </div>
               )}
             </div>
-          </TabsContent>
-        </Tabs>
-      </section>
+          )}
 
-      {/* Donate + Footer */}
-      <footer className="mx-auto max-w-6xl px-6 py-12">
-        <div className="mx-auto max-w-md">
-          <PixDonate />
-        </div>
-        <p className="mt-8 text-center text-xs text-muted-foreground">
-          © 2026 Zero Order — Rumo ao topo dos servidores de Blox Fruits.
-        </p>
-      </footer>
+          {section === "donate" && (
+            <div className="mx-auto max-w-md">
+              <SectionTitle icon="💖" title="Donate" />
+              <PixDonate />
+            </div>
+          )}
+
+          <div className="mt-10">
+            <SectionTitle icon="👑" title="O que a Zero Order tem" />
+            <div className="grid gap-4 md:grid-cols-2">
+              {FEATURES.map((f) => (
+                <div key={f.title} className="glass rounded-2xl p-6">
+                  <h3 className="mb-2 text-xl font-bold text-primary">{f.title}</h3>
+                  <p className="text-sm leading-relaxed text-foreground/85">{f.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="mt-10 text-center text-xs text-muted-foreground">
+            © 2026 Zero Order — Site criado por ZeroCute.
+          </p>
+        </main>
+      </div>
     </div>
   );
 }
+
