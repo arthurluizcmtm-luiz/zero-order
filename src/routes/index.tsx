@@ -21,7 +21,7 @@ import {
   type DiscordUser,
   type DiscordInviteInfo,
 } from "@/lib/discord";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import type { SheetData } from "@/lib/sheet.functions";
 import {
   Accordion,
   AccordionItem,
