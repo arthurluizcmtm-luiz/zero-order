@@ -115,7 +115,7 @@ async function register(request: Request): Promise<Response> {
   }
   if (!config.token || !config.appId) {
     return Response.json(
-      { ok: false, error: "Faltam o token (Q1) ou o application ID (Q3) na planilha." },
+      { ok: false, error: "DISCORD_BOT_TOKEN ou DISCORD_APPLICATION_ID ausentes no cofre de segredos." },
       { status: 400 },
     );
   }

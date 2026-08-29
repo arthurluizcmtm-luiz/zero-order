@@ -218,7 +218,7 @@ export async function askAI(
   context: { staffAnswer: string; faq: string },
 ): Promise<string> {
   if (!apiKey) {
-    return "A IA ainda não está configurada (falta a API key na célula Q4 da planilha).";
+    return "A IA ainda não está configurada no servidor. Avise a staff.";
   }
   const system = [
     "Você é o assistente oficial da crew Zero Order (Blox Fruits).",
