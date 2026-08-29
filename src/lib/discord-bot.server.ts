@@ -1,15 +1,12 @@
 // Núcleo do bot do Discord — só roda no servidor.
-// Configuração fica na coluna Q da planilha:
-//   Q1 = token do bot
-//   Q2 = public key
-//   Q3 = application (bot) ID
-//   Q4 = API key do OpenRouter
+// Credenciais ficam no cofre de segredos (env): DISCORD_BOT_TOKEN,
+// DISCORD_PUBLIC_KEY, DISCORD_APPLICATION_ID, DISCORD_ROLE_ID e
+// OPENROUTER_API_KEY. A planilha guarda só textos editáveis:
 //   Q5 = resposta sobre "como virar staff"
-//   Q6 = (opcional) ID do cargo admin
 import { SHEET_ID } from "./crew-data";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4";
-const DEFAULT_ADMIN_ROLE = "1542326621745447063";
+const DEFAULT_ADMIN_ROLE = "1542330538818273310";
 
 export type BotConfig = {
   token: string;
@@ -80,15 +77,23 @@ export async function getBotConfig(force = false): Promise<BotConfig> {
   if (!force && cachedConfig && Date.now() - cachedConfig.at < 30_000) {
     return cachedConfig.value;
   }
-  const col = await readColumn("Q1:Q6", 6);
-  const value: BotConfig = {
-    token: col[0] ?? "",
-    publicKey: col[1] ?? "",
-    appId: col[2] ?? "",
-    aiKey: col[3] ?? "",
-    staffAnswer: col[4] ?? "",
-    adminRoleId: col[5] || DEFAULT_ADMIN_ROLE,
-  };
+  // Credenciais vêm do cofre de segredos — nunca da planilha pública.
+  const token = process.env["DISCORD_BOT_TOKEN"] ?? "";
+  const publicKey = process.env["DISCORD_PUBLIC_KEY"] ?? "";
+  const appId = process.env["DISCORD_APPLICATION_ID"] ?? "";
+  const aiKey = process.env["OPENROUTER_API_KEY"] ?? "";
+  const adminRoleId = process.env["DISCORD_ROLE_ID"] || DEFAULT_ADMIN_ROLE;
+
+  // Único dado que continua editável pela planilha: a resposta de staff (Q5).
+  let staffAnswer = "";
+  try {
+    const rows = await readRange("Q5");
+    staffAnswer = (rows[0]?.[0] ?? "").trim();
+  } catch {
+    staffAnswer = "";
+  }
+
+  const value: BotConfig = { token, publicKey, appId, aiKey, staffAnswer, adminRoleId };
   cachedConfig = { at: Date.now(), value };
   return value;
 }
@@ -213,7 +218,7 @@ export async function askAI(
   context: { staffAnswer: string; faq: string },
 ): Promise<string> {
   if (!apiKey) {
-    return "A IA ainda não está configurada (falta a API key na célula Q4 da planilha).";
+    return "A IA ainda não está configurada no servidor. Avise a staff.";
   }
   const system = [
     "Você é o assistente oficial da crew Zero Order (Blox Fruits).",
