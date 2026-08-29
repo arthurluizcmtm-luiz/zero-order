@@ -77,15 +77,23 @@ export async function getBotConfig(force = false): Promise<BotConfig> {
   if (!force && cachedConfig && Date.now() - cachedConfig.at < 30_000) {
     return cachedConfig.value;
   }
-  const col = await readColumn("Q1:Q6", 6);
-  const value: BotConfig = {
-    token: col[0] ?? "",
-    publicKey: col[1] ?? "",
-    appId: col[2] ?? "",
-    aiKey: col[3] ?? "",
-    staffAnswer: col[4] ?? "",
-    adminRoleId: col[5] || DEFAULT_ADMIN_ROLE,
-  };
+  // Credenciais vêm do cofre de segredos — nunca da planilha pública.
+  const token = process.env["DISCORD_BOT_TOKEN"] ?? "";
+  const publicKey = process.env["DISCORD_PUBLIC_KEY"] ?? "";
+  const appId = process.env["DISCORD_APPLICATION_ID"] ?? "";
+  const aiKey = process.env["OPENROUTER_API_KEY"] ?? "";
+  const adminRoleId = process.env["DISCORD_ROLE_ID"] || DEFAULT_ADMIN_ROLE;
+
+  // Único dado que continua editável pela planilha: a resposta de staff (Q5).
+  let staffAnswer = "";
+  try {
+    const rows = await readRange("Q5");
+    staffAnswer = (rows[0]?.[0] ?? "").trim();
+  } catch {
+    staffAnswer = "";
+  }
+
+  const value: BotConfig = { token, publicKey, appId, aiKey, staffAnswer, adminRoleId };
   cachedConfig = { at: Date.now(), value };
   return value;
 }
