@@ -10,6 +10,8 @@ import {
   formatEntry,
   getBotConfig,
   insertAt,
+  normalizeCategory,
+  normalizeRegion,
   padTo,
   readColumn,
   readRange,
@@ -252,6 +254,10 @@ export const Route = createFileRoute("/api/public/discord")({
               return await handleTopCrew(options);
             case "topranking":
               return await handleTopRanking(options);
+            case "removetop":
+              return await handleRemoveTop(options);
+            case "removetopcrew":
+              return await handleRemoveTopCrew(options);
             case "topvideos":
               return await handleTopVideos(options);
             default:
