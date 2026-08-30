@@ -10,6 +10,8 @@ import {
   formatEntry,
   getBotConfig,
   insertAt,
+  normalizeCategory,
+  normalizeRegion,
   padTo,
   readColumn,
   readRange,
@@ -51,15 +53,15 @@ function parseId(raw: string): string | null {
 }
 
 async function handleTop(options: Option[] | undefined): Promise<Response> {
-  const region = opt(options, "regiao").toLowerCase();
-  const categoria = opt(options, "categoria").toLowerCase() || "geral";
+  const region = normalizeRegion(opt(options, "regiao"));
+  const categoria = normalizeCategory(opt(options, "categoria"));
   const id = parseId(opt(options, "usuario"));
   const posicao = Number(opt(options, "posicao"));
 
-  const offset = REGION_OFFSET[region];
-  const column = CATEGORY_COLUMN[categoria];
-  if (offset === undefined) return reply("Região inválida.");
-  if (!column) return reply("Categoria inválida (use geral, mobile, pc ou console).");
+  if (!region) return reply("Região inválida (use sa, na, eu, asia, africa ou oceania).");
+  if (!categoria) return reply("Categoria inválida (use geral, mobile, pc ou console).");
+  const offset = REGION_OFFSET[region] ?? 0;
+  const column = CATEGORY_COLUMN[categoria] ?? "J";
   if (!id) return reply("ID de Discord inválido.");
   if (!Number.isInteger(posicao) || posicao < 1 || posicao > 10) {
     return reply("A posição precisa ser um número de 1 a 10.");
@@ -72,9 +74,46 @@ async function handleTop(options: Option[] | undefined): Promise<Response> {
   await writeColumn(range, padTo(items, 10));
 
   return reply(
-    `✅ <@${id}> agora é **#${posicao}** no top **${REGION_LABEL[region]}** (${categoria}).`,
+    `✅ <@${id}> agora é **#${posicao}** no top **${REGION_LABEL[region]}** (${categoria}) · células \`${range}\`.`,
   );
 }
+
+async function handleRemoveTop(options: Option[] | undefined): Promise<Response> {
+  const region = normalizeRegion(opt(options, "regiao"));
+  const categoria = normalizeCategory(opt(options, "categoria"));
+  const id = parseId(opt(options, "usuario"));
+  if (!region) return reply("Região inválida (use sa, na, eu, asia, africa ou oceania).");
+  if (!categoria) return reply("Categoria inválida (use geral, mobile, pc ou console).");
+  if (!id) return reply("ID de Discord inválido.");
+
+  const offset = REGION_OFFSET[region] ?? 0;
+  const column = CATEGORY_COLUMN[categoria] ?? "J";
+  const range = `${column}${offset + 1}:${column}${offset + 10}`;
+  const block = await readColumn(range, 10);
+  const items = compact(block);
+  const next = items.filter((c) => cellId(c) !== id);
+  if (next.length === items.length) {
+    return reply(`Não achei <@${id}> em **${REGION_LABEL[region]}** (${categoria}).`);
+  }
+  await writeColumn(range, padTo(next, 10));
+  return reply(
+    `🗑️ <@${id}> removido de **${REGION_LABEL[region]}** (${categoria}) · células \`${range}\`.`,
+  );
+}
+
+async function handleRemoveTopCrew(options: Option[] | undefined): Promise<Response> {
+  const id = parseId(opt(options, "usuario"));
+  if (!id) return reply("ID de Discord inválido.");
+  const list = await readColumn("A1:A100", 100);
+  const items = compact(list);
+  const next = items.filter((c) => cellId(c) !== id);
+  if (next.length === items.length) {
+    return reply(`Não achei <@${id}> nos Melhores da Crew.`);
+  }
+  await writeColumn("A1:A100", padTo(next, 100));
+  return reply(`🗑️ <@${id}> removido dos Melhores da Crew.`);
+}
+
 
 async function handleTopCrew(options: Option[] | undefined): Promise<Response> {
   const id = parseId(opt(options, "usuario"));
@@ -215,6 +254,10 @@ export const Route = createFileRoute("/api/public/discord")({
               return await handleTopCrew(options);
             case "topranking":
               return await handleTopRanking(options);
+            case "removetop":
+              return await handleRemoveTop(options);
+            case "removetopcrew":
+              return await handleRemoveTopCrew(options);
             case "topvideos":
               return await handleTopVideos(options);
             default:

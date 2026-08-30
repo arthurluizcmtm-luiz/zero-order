@@ -47,7 +47,35 @@ const COMMANDS = [
         max_value: 10,
       },
     ],
+  {
+    name: "removetop",
+    description: "Remove alguém do top de uma região/categoria pelo ID",
+    options: [
+      {
+        type: 3,
+        name: "regiao",
+        description: "Região do ranking",
+        required: true,
+        choices: REGION_CHOICES,
+      },
+      {
+        type: 3,
+        name: "categoria",
+        description: "Plataforma",
+        required: true,
+        choices: CATEGORY_CHOICES,
+      },
+      { type: 3, name: "usuario", description: "ID do Discord da pessoa", required: true },
+    ],
   },
+  {
+    name: "removetopcrew",
+    description: "Remove alguém dos Melhores da Crew pelo ID",
+    options: [
+      { type: 3, name: "usuario", description: "ID do Discord da pessoa", required: true },
+    ],
+  },
+
   {
     name: "topcrew",
     description: "Adiciona alguém aos Melhores da Crew",
