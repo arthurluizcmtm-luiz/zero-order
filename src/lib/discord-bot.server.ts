@@ -6,7 +6,7 @@
 import { SHEET_ID } from "./crew-data";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4";
-const DEFAULT_ADMIN_ROLE = "1542330538818273310";
+const DEFAULT_ADMIN_ROLE = "1542326621745447063";
 
 export type BotConfig = {
   token: string;
