@@ -168,6 +168,41 @@ export const CATEGORY_COLUMN: Record<string, string> = {
   console: "P",
 };
 
+// Aceita apelidos/escritas diferentes para região (evita cair sempre no S.A).
+const REGION_ALIASES: Record<string, string> = {
+  sa: "sa", "s.a": "sa", "s.a.": "sa", southamerica: "sa", "south america": "sa",
+  america_do_sul: "sa", "america do sul": "sa", br: "sa", brasil: "sa", latam: "sa",
+  na: "na", "n.a": "na", "n.a.": "na", northamerica: "na", "north america": "na",
+  "america do norte": "na", us: "na", usa: "na",
+  eu: "eu", europe: "eu", europa: "eu",
+  asia: "asia", "ásia": "asia", as: "asia",
+  africa: "africa", "áfrica": "africa", af: "africa",
+  oceania: "oceania", oce: "oceania", oc: "oceania", au: "oceania", australia: "oceania",
+};
+
+export function normalizeRegion(raw: string): string | null {
+  const k = (raw ?? "").trim().toLowerCase();
+  if (!k) return null;
+  const direct = REGION_ALIASES[k];
+  if (direct) return direct;
+  const compactKey = k.replace(/[^a-z]/g, "");
+  return REGION_ALIASES[compactKey] ?? null;
+}
+
+const CATEGORY_ALIASES: Record<string, string> = {
+  geral: "geral", general: "geral", global: "geral", all: "geral", todos: "geral",
+  mobile: "mobile", cel: "mobile", celular: "mobile", mob: "mobile",
+  pc: "pc", computador: "pc", desktop: "pc",
+  console: "console", xbox: "console", ps: "console", playstation: "console",
+};
+
+export function normalizeCategory(raw: string): string | null {
+  const k = (raw ?? "").trim().toLowerCase();
+  if (!k) return "geral";
+  return CATEGORY_ALIASES[k.replace(/[^a-z]/g, "")] ?? null;
+}
+
+
 // Extrai o ID de Discord de uma célula no formato "<@123> Nome <True>".
 export function cellId(cell: string): string | null {
   const m = (cell ?? "").match(/<@?!?(\d{5,25})>/);
