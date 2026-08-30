@@ -93,8 +93,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Zero Order — Crew de Blox Fruits" },
       { name: "twitter:description", content: "Zero Order: crew de Blox Fruits nascida para chegar ao topo. Wars, Frota de Farm, treinadores e o ranking dos melhores." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/WAjctDEp9GXQhtYhKAkPpWm0rCr2/social-images/social-1784833141103-Zero.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/WAjctDEp9GXQhtYhKAkPpWm0rCr2/social-images/social-1784833141103-Zero.webp" },
+      { property: "og:image", content: "https://zero-order.lovable.app/__l5e/assets-v1/d48dd19d-fd30-439f-bdd7-7f0dc4e0c043/zero-order-social.png" },
+      { name: "twitter:image", content: "https://zero-order.lovable.app/__l5e/assets-v1/d48dd19d-fd30-439f-bdd7-7f0dc4e0c043/zero-order-social.png" },
     ],
     links: [
       {
