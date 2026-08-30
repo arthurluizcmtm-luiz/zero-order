@@ -37,10 +37,10 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { property: "og:image", content: `${SITE_URL}/og-image.jpg` },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { name: "twitter:image", content: `${SITE_URL}/og-image.jpg` },
+      { property: "og:image", content: `${SITE_URL}/__l5e/assets-v1/d48dd19d-fd30-439f-bdd7-7f0dc4e0c043/zero-order-social.png` },
+      { property: "og:image:width", content: "1500" },
+      { property: "og:image:height", content: "1000" },
+      { name: "twitter:image", content: `${SITE_URL}/__l5e/assets-v1/d48dd19d-fd30-439f-bdd7-7f0dc4e0c043/zero-order-social.png` },
       { property: "og:url", content: SITE_URL },
     ],
     links: [{ rel: "canonical", href: SITE_URL }],
