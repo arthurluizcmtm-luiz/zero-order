@@ -47,7 +47,9 @@ const COMMANDS = [
         max_value: 10,
       },
     ],
+  },
   {
+
     name: "removetop",
     description: "Remove alguém do top de uma região/categoria pelo ID",
     options: [
