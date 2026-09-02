@@ -556,7 +556,7 @@ function Index() {
   const giveaways = data?.giveaways ?? [];
   const youtube = data?.youtube ?? [];
   const privateServers = data?.privateServers ?? [];
-  const musicUrl = data?.spotifyUrl?.trim() || "";
+  const musicUrl = "";
   const sheetError = data?.error;
   const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
