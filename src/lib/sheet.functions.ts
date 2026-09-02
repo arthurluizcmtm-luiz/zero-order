@@ -193,7 +193,10 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         youtube: rawK,
         privateServers: rawL,
         spotifyUrl,
-        discordUrl,
+        discord: await (async () => {
+          const { fetchInviteInfo } = await import("./invite.server");
+          return fetchInviteInfo();
+        })(),
       };
 
     } catch (e) {
