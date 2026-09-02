@@ -11,8 +11,8 @@ function spotifyEmbed(url: string): string | null {
 
 // Toca música a partir da célula M1 da planilha.
 // Suporta: link direto (mp3/ogg/wav/m4a), YouTube (toca inteira) e Spotify (embed).
-export default function MusicPlayer({ url }: { url: string }) {
-  const src = (url ?? "").trim();
+export default function MusicPlayer({ url }: { url?: string }) {
+  const src = (url ?? "").trim() || musicAsset.url;
 
   const kind: Kind = useMemo(() => {
     if (!src) return "none";
