@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { youtubeId } from "@/lib/discord";
+import musicAsset from "@/assets/music.mp3.asset.json";
 
 type Kind = "audio" | "youtube" | "spotify" | "none";
 
