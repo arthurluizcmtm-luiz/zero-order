@@ -13,12 +13,10 @@ import {
 import { fetchSheetData } from "@/lib/sheet.functions";
 import {
   fetchDiscordUser,
-  fetchDiscordInvite,
   discordProfileUrl,
   youtubeId,
   parseDiscordEntry,
   type DiscordUser,
-  type DiscordInviteInfo,
 } from "@/lib/discord";
 import type { SheetData } from "@/lib/sheet.functions";
 import {
@@ -29,6 +27,10 @@ import {
 } from "@/components/ui/accordion";
 import ThemeCustomizer from "@/components/ThemeCustomizer";
 import MusicPlayer from "@/components/MusicPlayer";
+import SourceGuard from "@/components/SourceGuard";
+
+// Rota interna que redireciona para o convite (link real nunca vai ao cliente).
+const JOIN_URL = "/api/public/join";
 
 
 
