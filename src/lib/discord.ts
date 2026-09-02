@@ -7,13 +7,6 @@ export type DiscordUser = {
   avatarUrl: string;
 };
 
-export type DiscordInviteInfo = {
-  guildId: string;
-  guildName: string;
-  iconUrl: string | null;
-  memberCount?: number;
-  presenceCount?: number;
-};
 
 // Formato aceito nas células da planilha:
 //   <@1234567890> ZeroCute <True>
