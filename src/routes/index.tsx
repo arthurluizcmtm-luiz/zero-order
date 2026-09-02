@@ -556,15 +556,14 @@ function Index() {
   const giveaways = data?.giveaways ?? [];
   const youtube = data?.youtube ?? [];
   const privateServers = data?.privateServers ?? [];
-  const musicUrl = "";
   const sheetError = data?.error;
-  const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
 
   return (
-    <div className="min-h-screen font-body">
+    <div className="aurora min-h-screen font-body">
+      <SourceGuard />
       <ThemeCustomizer />
-      {musicUrl && <MusicPlayer url={musicUrl} />}
+      <MusicPlayer />
 
       <div className="mx-auto flex max-w-[1500px] flex-col lg:flex-row">
         {/* Sidebar */}
