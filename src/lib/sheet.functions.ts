@@ -117,7 +117,6 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawP: string[] = new Array(60).fill("");
       const rawK: string[] = [];
       const rawL: string[] = [];
-      let discordUrl = "";
       let spotifyUrl = "";
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
