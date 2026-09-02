@@ -3,7 +3,7 @@
 // ============================================================
 
 // Discord padrão (fallback). O link OFICIAL vem da célula Z1 da planilha.
-export const DISCORD_URL = "https://discord.gg/atMHkzPrKA";
+// (o link real fica apenas no servidor: src/lib/invite.server.ts)
 
 // URL pública do site.
 export const SITE_URL = "https://zero-order.lovable.app";

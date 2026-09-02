@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
-  DISCORD_URL,
   SITE_URL,
   CREW_DESCRIPTION,
   FEATURES,
@@ -14,12 +13,10 @@ import {
 import { fetchSheetData } from "@/lib/sheet.functions";
 import {
   fetchDiscordUser,
-  fetchDiscordInvite,
   discordProfileUrl,
   youtubeId,
   parseDiscordEntry,
   type DiscordUser,
-  type DiscordInviteInfo,
 } from "@/lib/discord";
 import type { SheetData } from "@/lib/sheet.functions";
 import {
@@ -30,6 +27,10 @@ import {
 } from "@/components/ui/accordion";
 import ThemeCustomizer from "@/components/ThemeCustomizer";
 import MusicPlayer from "@/components/MusicPlayer";
+import SourceGuard from "@/components/SourceGuard";
+
+// Rota interna que redireciona para o convite (link real nunca vai ao cliente).
+const JOIN_URL = "/api/public/join";
 
 
 
@@ -161,14 +162,9 @@ function DiscordCard({ entry, rank }: { entry: string; rank: number }) {
 }
 
 
-function DiscordInviteBanner({ url }: { url: string }) {
-  const { data } = useQuery<DiscordInviteInfo | null>({
-    queryKey: ["discord-invite", url],
-    queryFn: () => fetchDiscordInvite(url),
-    staleTime: 5 * 60_000,
-  });
+function DiscordInviteBanner({ data }: { data: SheetData["discord"] }) {
   return (
-    <aside className="glass flex flex-col items-center justify-center rounded-2xl p-8 text-center">
+    <aside className="glass glow-ring flex flex-col items-center justify-center rounded-2xl p-8 text-center">
       {data?.iconUrl ? (
         <img
           src={data.iconUrl}
@@ -190,7 +186,7 @@ function DiscordInviteBanner({ url }: { url: string }) {
         Avisos, recrutamento e tudo sobre a Zero Order acontecem no Discord.
       </p>
       <a
-        href={url}
+        href={JOIN_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="pulse-glow rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground shadow-lg hover:scale-105"
@@ -560,15 +556,14 @@ function Index() {
   const giveaways = data?.giveaways ?? [];
   const youtube = data?.youtube ?? [];
   const privateServers = data?.privateServers ?? [];
-  const musicUrl = data?.spotifyUrl?.trim() || "";
   const sheetError = data?.error;
-  const discordUrl = data?.discordUrl?.trim() || DISCORD_URL;
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
 
   return (
-    <div className="min-h-screen font-body">
+    <div className="aurora min-h-screen font-body">
+      <SourceGuard />
       <ThemeCustomizer />
-      {musicUrl && <MusicPlayer url={musicUrl} />}
+      <MusicPlayer />
 
       <div className="mx-auto flex max-w-[1500px] flex-col lg:flex-row">
         {/* Sidebar */}
@@ -595,7 +590,7 @@ function Index() {
               ))}
             </nav>
             <a
-              href={discordUrl}
+              href={JOIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="pulse-glow mt-5 block rounded-xl bg-primary px-4 py-2 text-center text-xs font-black uppercase tracking-widest text-primary-foreground hover:scale-[1.03]"
@@ -654,7 +649,7 @@ function Index() {
                 <div className="lg:col-span-2">
                   <RegionsDashboard data={data} />
                 </div>
-                <DiscordInviteBanner url={discordUrl} />
+                <DiscordInviteBanner data={data?.discord ?? null} />
               </div>
             </div>
           )}

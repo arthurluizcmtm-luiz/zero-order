@@ -50,7 +50,7 @@ export type SheetData = {
   youtube: string[];
   privateServers: string[]; // coluna L
   spotifyUrl: string; // M1
-  discordUrl: string;
+  discord: { guildName: string; iconUrl: string | null; memberCount?: number; presenceCount?: number } | null;
   error?: string;
 };
 
@@ -58,7 +58,7 @@ const EMPTY: SheetData = {
   crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
   faq: [], news: [], giveaways: [], regions: [], regionsMobile: [], regionsPc: [],
   regionsConsole: [], youtube: [], privateServers: [],
-  spotifyUrl: "", discordUrl: "",
+  spotifyUrl: "", discord: null,
 };
 
 
@@ -117,7 +117,6 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawP: string[] = new Array(60).fill("");
       const rawK: string[] = [];
       const rawL: string[] = [];
-      let discordUrl = "";
       let spotifyUrl = "";
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
@@ -146,8 +145,6 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         if (i === 0) {
           const m = (r[12] ?? "").trim();
           if (m) spotifyUrl = m;
-          const z = (r[25] ?? "").trim();
-          if (z) discordUrl = z;
         }
       }
 
@@ -196,7 +193,10 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         youtube: rawK,
         privateServers: rawL,
         spotifyUrl,
-        discordUrl,
+        discord: await (async () => {
+          const { fetchInviteInfo } = await import("./invite.server");
+          return fetchInviteInfo();
+        })(),
       };
 
     } catch (e) {

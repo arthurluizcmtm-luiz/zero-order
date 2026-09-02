@@ -7,13 +7,6 @@ export type DiscordUser = {
   avatarUrl: string;
 };
 
-export type DiscordInviteInfo = {
-  guildId: string;
-  guildName: string;
-  iconUrl: string | null;
-  memberCount?: number;
-  presenceCount?: number;
-};
 
 // Formato aceito nas células da planilha:
 //   <@1234567890> ZeroCute <True>
@@ -142,40 +135,7 @@ export function discordProfileUrl(id: string): string {
   return `https://discord.com/users/${id}`;
 }
 
-// Extrai o código de um convite (aceita URL ou só o código).
-export function extractInviteCode(input: string): string | null {
-  if (!input) return null;
-  const m = input.match(/(?:discord\.gg\/|discord\.com\/invite\/)([A-Za-z0-9-]+)/);
-  if (m) return m[1];
-  if (/^[A-Za-z0-9-]{2,32}$/.test(input.trim())) return input.trim();
-  return null;
-}
-
-export async function fetchDiscordInvite(inviteUrl: string): Promise<DiscordInviteInfo | null> {
-  const code = extractInviteCode(inviteUrl);
-  if (!code) return null;
-  try {
-    const res = await fetch(
-      `https://discord.com/api/v10/invites/${code}?with_counts=true`,
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    const guild = data.guild;
-    if (!guild) return null;
-    const iconUrl = guild.icon
-      ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.${guild.icon.startsWith("a_") ? "gif" : "png"}?size=256`
-      : null;
-    return {
-      guildId: guild.id,
-      guildName: guild.name,
-      iconUrl,
-      memberCount: data.approximate_member_count,
-      presenceCount: data.approximate_presence_count,
-    };
-  } catch {
-    return null;
-  }
-}
+// (convites são resolvidos apenas no servidor — src/lib/invite.server.ts)
 
 // Extrai video ID do YouTube de várias formas de URL.
 export function youtubeId(url: string): string | null {
