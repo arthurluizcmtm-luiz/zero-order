@@ -145,8 +145,6 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         if (i === 0) {
           const m = (r[12] ?? "").trim();
           if (m) spotifyUrl = m;
-          const z = (r[25] ?? "").trim();
-          if (z) discordUrl = z;
         }
       }
 
