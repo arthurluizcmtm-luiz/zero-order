@@ -590,7 +590,7 @@ function Index() {
               ))}
             </nav>
             <a
-              href={discordUrl}
+              href={JOIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="pulse-glow mt-5 block rounded-xl bg-primary px-4 py-2 text-center text-xs font-black uppercase tracking-widest text-primary-foreground hover:scale-[1.03]"
