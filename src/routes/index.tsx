@@ -186,7 +186,7 @@ function DiscordInviteBanner({ data }: { data: SheetData["discord"] }) {
         Avisos, recrutamento e tudo sobre a Zero Order acontecem no Discord.
       </p>
       <a
-        href={url}
+        href={JOIN_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="pulse-glow rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground shadow-lg hover:scale-105"
