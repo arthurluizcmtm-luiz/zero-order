@@ -162,14 +162,9 @@ function DiscordCard({ entry, rank }: { entry: string; rank: number }) {
 }
 
 
-function DiscordInviteBanner({ url }: { url: string }) {
-  const { data } = useQuery<DiscordInviteInfo | null>({
-    queryKey: ["discord-invite", url],
-    queryFn: () => fetchDiscordInvite(url),
-    staleTime: 5 * 60_000,
-  });
+function DiscordInviteBanner({ data }: { data: SheetData["discord"] }) {
   return (
-    <aside className="glass flex flex-col items-center justify-center rounded-2xl p-8 text-center">
+    <aside className="glass glow-ring flex flex-col items-center justify-center rounded-2xl p-8 text-center">
       {data?.iconUrl ? (
         <img
           src={data.iconUrl}
