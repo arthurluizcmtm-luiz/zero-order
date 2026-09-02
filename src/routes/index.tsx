@@ -649,7 +649,7 @@ function Index() {
                 <div className="lg:col-span-2">
                   <RegionsDashboard data={data} />
                 </div>
-                <DiscordInviteBanner url={discordUrl} />
+                <DiscordInviteBanner data={data?.discord ?? null} />
               </div>
             </div>
           )}
