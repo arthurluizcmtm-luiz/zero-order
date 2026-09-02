@@ -58,7 +58,7 @@ const EMPTY: SheetData = {
   crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
   faq: [], news: [], giveaways: [], regions: [], regionsMobile: [], regionsPc: [],
   regionsConsole: [], youtube: [], privateServers: [],
-  spotifyUrl: "", discordUrl: "",
+  spotifyUrl: "", discord: null,
 };
 
 
