@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicJoinRouteImport } from './routes/api/public/join'
 import { Route as ApiPublicDiscordRegisterRouteImport } from './routes/api/public/discord-register'
 import { Route as ApiPublicDiscordRouteImport } from './routes/api/public/discord'
 
@@ -22,6 +23,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicJoinRoute = ApiPublicJoinRouteImport.update({
+  id: '/api/public/join',
+  path: '/api/public/join',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicDiscordRegisterRoute =
@@ -41,12 +47,14 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/discord': typeof ApiPublicDiscordRoute
   '/api/public/discord-register': typeof ApiPublicDiscordRegisterRoute
+  '/api/public/join': typeof ApiPublicJoinRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/discord': typeof ApiPublicDiscordRoute
   '/api/public/discord-register': typeof ApiPublicDiscordRegisterRoute
+  '/api/public/join': typeof ApiPublicJoinRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -54,6 +62,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/discord': typeof ApiPublicDiscordRoute
   '/api/public/discord-register': typeof ApiPublicDiscordRegisterRoute
+  '/api/public/join': typeof ApiPublicJoinRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -62,18 +71,21 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/api/public/discord'
     | '/api/public/discord-register'
+    | '/api/public/join'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/sitemap.xml'
     | '/api/public/discord'
     | '/api/public/discord-register'
+    | '/api/public/join'
   id:
     | '__root__'
     | '/'
     | '/sitemap.xml'
     | '/api/public/discord'
     | '/api/public/discord-register'
+    | '/api/public/join'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -81,6 +93,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicDiscordRoute: typeof ApiPublicDiscordRoute
   ApiPublicDiscordRegisterRoute: typeof ApiPublicDiscordRegisterRoute
+  ApiPublicJoinRoute: typeof ApiPublicJoinRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -97,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/join': {
+      id: '/api/public/join'
+      path: '/api/public/join'
+      fullPath: '/api/public/join'
+      preLoaderRoute: typeof ApiPublicJoinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/discord-register': {
@@ -121,6 +141,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicDiscordRoute: ApiPublicDiscordRoute,
   ApiPublicDiscordRegisterRoute: ApiPublicDiscordRegisterRoute,
+  ApiPublicJoinRoute: ApiPublicJoinRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

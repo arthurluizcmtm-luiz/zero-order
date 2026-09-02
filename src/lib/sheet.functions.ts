@@ -50,7 +50,7 @@ export type SheetData = {
   youtube: string[];
   privateServers: string[]; // coluna L
   spotifyUrl: string; // M1
-  discordUrl: string;
+  discord: { guildName: string; iconUrl: string | null; memberCount?: number; presenceCount?: number } | null;
   error?: string;
 };
 
