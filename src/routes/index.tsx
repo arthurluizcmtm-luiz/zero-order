@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
-  DISCORD_URL,
   SITE_URL,
   CREW_DESCRIPTION,
   FEATURES,
