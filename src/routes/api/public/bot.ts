@@ -108,14 +108,13 @@ export const Route = createFileRoute("/api/public/bot")({
             default:
               content = "Ação desconhecida.";
           }
-          return Response.json(
-            { content, adminRoleId: config.adminRoleId },
-            { headers: { "cache-control": "no-store" } },
-          );
+          return Response.json({ content, adminRoleId: config.adminRoleId }, { headers: noStore });
         } catch (e) {
           console.error(e);
-          const msg = e instanceof Error ? e.message : "erro desconhecido";
-          return Response.json({ content: `⚠️ Não consegui concluir: ${msg}` });
+          return Response.json(
+            { content: "⚠️ Não consegui concluir a ação. Tente novamente." },
+            { headers: noStore },
+          );
         }
       },
     },
