@@ -36,24 +36,34 @@ export const Route = createFileRoute("/api/public/bot")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const noStore = { "cache-control": "no-store" } as const;
         let config;
         try {
           config = await getBotConfig();
         } catch (e) {
           console.error(e);
-          return new Response("config error", { status: 500 });
+          return Response.json(
+            { content: "Configuração do bot indisponível." },
+            { status: 500, headers: noStore },
+          );
         }
 
         const sent = request.headers.get("x-bot-token") ?? "";
         if (!config.token || !safeEqual(sent, config.token)) {
-          return new Response("unauthorized", { status: 401 });
+          return Response.json(
+            { content: "unauthorized" },
+            { status: 401, headers: noStore },
+          );
         }
 
         let body: Body;
         try {
           body = (await request.json()) as Body;
         } catch {
-          return new Response("bad json", { status: 400 });
+          return Response.json(
+            { content: "JSON inválido." },
+            { status: 400, headers: noStore },
+          );
         }
 
         try {
