@@ -1,9 +1,7 @@
 // Ações do bot (leitura/escrita na planilha), compartilhadas entre o endpoint
 // de Interactions e o bot Gateway externo.
 import {
-  CATEGORY_COLUMN,
   REGION_LABEL,
-  REGION_OFFSET,
   askAI,
   cellId,
   compact,
@@ -14,7 +12,9 @@ import {
   padTo,
   readColumn,
   readRange,
+  regionRange,
 } from "./discord-bot.server";
+
 import { writeColumn } from "./discord-bot.server";
 
 export function parseId(raw: string): string | null {
