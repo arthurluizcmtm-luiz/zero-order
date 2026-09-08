@@ -102,7 +102,7 @@ function RankList({
   );
 }
 
-function DiscordCard({ entry, rank }: { entry: string; rank: number }) {
+function DiscordCard({ entry, rank, hideRank }: { entry: string; rank: number; hideRank?: boolean }) {
   const parsed = parseDiscordEntry(entry);
   const id = parsed?.id ?? "";
   const fallbackName = parsed?.fallbackName || (id ? `User ${id.slice(-4)}` : entry);
