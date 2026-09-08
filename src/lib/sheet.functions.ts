@@ -164,7 +164,11 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         if (i === 0) {
           const m = (r[12] ?? "").trim();
           if (m) spotifyUrl = m;
+        } else if (i < 11) {
+          // M2:M7 = Regional Managers (SA, NA, EU, Ásia, África, Oceania)
+          rawM[i - 1] = (r[12] ?? "").trim();
         }
+
       }
 
       // Filtrar sorteios expirados (data no fuso do Brasil).
