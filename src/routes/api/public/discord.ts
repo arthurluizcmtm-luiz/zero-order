@@ -1,23 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { actionRemoveTop, actionTop } from "@/lib/discord-actions.server";
 import {
-  CATEGORY_COLUMN,
-  REGION_LABEL,
-  REGION_OFFSET,
   askAI,
   cellId,
   compact,
   formatEntry,
   getBotConfig,
   insertAt,
-  normalizeCategory,
-  normalizeRegion,
   padTo,
   readColumn,
   readRange,
   verifyDiscordSignature,
   writeColumn,
 } from "@/lib/discord-bot.server";
+
 
 type Option = { name: string; value?: unknown; options?: Option[] };
 
@@ -53,53 +50,24 @@ function parseId(raw: string): string | null {
 }
 
 async function handleTop(options: Option[] | undefined): Promise<Response> {
-  const region = normalizeRegion(opt(options, "regiao"));
-  const categoria = normalizeCategory(opt(options, "categoria"));
-  const id = parseId(opt(options, "usuario"));
-  const posicao = Number(opt(options, "posicao"));
-
-  if (!region) return reply("Região inválida (use sa, na, eu, asia, africa ou oceania).");
-  if (!categoria) return reply("Categoria inválida (use geral, mobile, pc ou console).");
-  const offset = REGION_OFFSET[region] ?? 0;
-  const column = CATEGORY_COLUMN[categoria] ?? "J";
-  if (!id) return reply("ID de Discord inválido.");
-  if (!Number.isInteger(posicao) || posicao < 1 || posicao > 10) {
-    return reply("A posição precisa ser um número de 1 a 10.");
-  }
-
-  const range = `${column}${offset + 1}:${column}${offset + 10}`;
-  const block = await readColumn(range, 10);
-  const items = compact(block).filter((c) => cellId(c) !== id);
-  items.splice(Math.min(posicao - 1, items.length), 0, formatEntry(id));
-  await writeColumn(range, padTo(items, 10));
-
-  return reply(
-    `✅ <@${id}> agora é **#${posicao}** no top **${REGION_LABEL[region]}** (${categoria}) · células \`${range}\`.`,
+  const content = await actionTop(
+    opt(options, "regiao"),
+    opt(options, "categoria"),
+    opt(options, "usuario"),
+    Number(opt(options, "posicao")),
   );
+  return reply(content);
 }
 
 async function handleRemoveTop(options: Option[] | undefined): Promise<Response> {
-  const region = normalizeRegion(opt(options, "regiao"));
-  const categoria = normalizeCategory(opt(options, "categoria"));
-  const id = parseId(opt(options, "usuario"));
-  if (!region) return reply("Região inválida (use sa, na, eu, asia, africa ou oceania).");
-  if (!categoria) return reply("Categoria inválida (use geral, mobile, pc ou console).");
-  if (!id) return reply("ID de Discord inválido.");
-
-  const offset = REGION_OFFSET[region] ?? 0;
-  const column = CATEGORY_COLUMN[categoria] ?? "J";
-  const range = `${column}${offset + 1}:${column}${offset + 10}`;
-  const block = await readColumn(range, 10);
-  const items = compact(block);
-  const next = items.filter((c) => cellId(c) !== id);
-  if (next.length === items.length) {
-    return reply(`Não achei <@${id}> em **${REGION_LABEL[region]}** (${categoria}).`);
-  }
-  await writeColumn(range, padTo(next, 10));
-  return reply(
-    `🗑️ <@${id}> removido de **${REGION_LABEL[region]}** (${categoria}) · células \`${range}\`.`,
+  const content = await actionRemoveTop(
+    opt(options, "regiao"),
+    opt(options, "categoria"),
+    opt(options, "usuario"),
   );
+  return reply(content);
 }
+
 
 async function handleRemoveTopCrew(options: Option[] | undefined): Promise<Response> {
   const id = parseId(opt(options, "usuario"));

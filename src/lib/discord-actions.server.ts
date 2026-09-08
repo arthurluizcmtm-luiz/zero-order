@@ -1,9 +1,7 @@
 // Ações do bot (leitura/escrita na planilha), compartilhadas entre o endpoint
 // de Interactions e o bot Gateway externo.
 import {
-  CATEGORY_COLUMN,
   REGION_LABEL,
-  REGION_OFFSET,
   askAI,
   cellId,
   compact,
@@ -14,7 +12,9 @@ import {
   padTo,
   readColumn,
   readRange,
+  regionRange,
 } from "./discord-bot.server";
+
 import { writeColumn } from "./discord-bot.server";
 
 export function parseId(raw: string): string | null {
@@ -37,14 +37,13 @@ export async function actionTop(
   if (!Number.isInteger(posicao) || posicao < 1 || posicao > 10) {
     return "A posição precisa ser um número de 1 a 10.";
   }
-  const offset = REGION_OFFSET[region] ?? 0;
-  const column = CATEGORY_COLUMN[cat] ?? "J";
-  const range = `${column}${offset + 1}:${column}${offset + 10}`;
+  const range = regionRange(region, cat);
   const block = await readColumn(range, 10);
   const items = compact(block).filter((c) => cellId(c) !== id);
   items.splice(Math.min(posicao - 1, items.length), 0, formatEntry(id));
-  await writeColumn(range, padTo(items, 10));
+  await writeColumn(range, padTo(items.slice(0, 10), 10));
   return `✅ <@${id}> agora é **#${posicao}** no top **${REGION_LABEL[region]}** (${cat}) · células \`${range}\`.`;
+
 }
 
 export async function actionRemoveTop(
@@ -58,17 +57,16 @@ export async function actionRemoveTop(
   if (!region) return "Região inválida (use sa, na, eu, asia, africa ou oceania).";
   if (!cat) return "Categoria inválida (use geral, mobile, pc ou console).";
   if (!id) return "ID de Discord inválido.";
-  const offset = REGION_OFFSET[region] ?? 0;
-  const column = CATEGORY_COLUMN[cat] ?? "J";
-  const range = `${column}${offset + 1}:${column}${offset + 10}`;
+  const range = regionRange(region, cat);
   const block = await readColumn(range, 10);
   const items = compact(block);
   const next = items.filter((c) => cellId(c) !== id);
   if (next.length === items.length) {
-    return `Não achei <@${id}> em **${REGION_LABEL[region]}** (${cat}).`;
+    return `Não achei <@${id}> em **${REGION_LABEL[region]}** (${cat}) · células \`${range}\`.`;
   }
-  await writeColumn(range, padTo(next, 10));
+  await writeColumn(range, padTo(next.slice(0, 10), 10));
   return `🗑️ <@${id}> removido de **${REGION_LABEL[region]}** (${cat}) · células \`${range}\`.`;
+
 }
 
 export async function actionTopCrew(
