@@ -37,14 +37,13 @@ export async function actionTop(
   if (!Number.isInteger(posicao) || posicao < 1 || posicao > 10) {
     return "A posição precisa ser um número de 1 a 10.";
   }
-  const offset = REGION_OFFSET[region] ?? 0;
-  const column = CATEGORY_COLUMN[cat] ?? "J";
-  const range = `${column}${offset + 1}:${column}${offset + 10}`;
+  const range = regionRange(region, cat);
   const block = await readColumn(range, 10);
   const items = compact(block).filter((c) => cellId(c) !== id);
   items.splice(Math.min(posicao - 1, items.length), 0, formatEntry(id));
-  await writeColumn(range, padTo(items, 10));
+  await writeColumn(range, padTo(items.slice(0, 10), 10));
   return `✅ <@${id}> agora é **#${posicao}** no top **${REGION_LABEL[region]}** (${cat}) · células \`${range}\`.`;
+
 }
 
 export async function actionRemoveTop(
