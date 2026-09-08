@@ -57,17 +57,16 @@ export async function actionRemoveTop(
   if (!region) return "Região inválida (use sa, na, eu, asia, africa ou oceania).";
   if (!cat) return "Categoria inválida (use geral, mobile, pc ou console).";
   if (!id) return "ID de Discord inválido.";
-  const offset = REGION_OFFSET[region] ?? 0;
-  const column = CATEGORY_COLUMN[cat] ?? "J";
-  const range = `${column}${offset + 1}:${column}${offset + 10}`;
+  const range = regionRange(region, cat);
   const block = await readColumn(range, 10);
   const items = compact(block);
   const next = items.filter((c) => cellId(c) !== id);
   if (next.length === items.length) {
-    return `Não achei <@${id}> em **${REGION_LABEL[region]}** (${cat}).`;
+    return `Não achei <@${id}> em **${REGION_LABEL[region]}** (${cat}) · células \`${range}\`.`;
   }
-  await writeColumn(range, padTo(next, 10));
+  await writeColumn(range, padTo(next.slice(0, 10), 10));
   return `🗑️ <@${id}> removido de **${REGION_LABEL[region]}** (${cat}) · células \`${range}\`.`;
+
 }
 
 export async function actionTopCrew(
