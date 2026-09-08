@@ -1,23 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { actionRemoveTop, actionTop } from "@/lib/discord-actions.server";
 import {
-  CATEGORY_COLUMN,
-  REGION_LABEL,
-  REGION_OFFSET,
   askAI,
   cellId,
   compact,
   formatEntry,
   getBotConfig,
   insertAt,
-  normalizeCategory,
-  normalizeRegion,
   padTo,
   readColumn,
   readRange,
   verifyDiscordSignature,
   writeColumn,
 } from "@/lib/discord-bot.server";
+
 
 type Option = { name: string; value?: unknown; options?: Option[] };
 
