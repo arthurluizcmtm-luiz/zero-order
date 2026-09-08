@@ -641,51 +641,54 @@ function Index() {
         </aside>
 
         {/* Conteúdo */}
-        <main className="min-w-0 flex-1 px-4 py-4 lg:px-8 lg:py-8">
+        <main className="min-w-0 flex-1 px-4 py-6 lg:px-12 lg:py-12">
           {sheetError && (
-            <div className="mb-6 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 text-sm text-yellow-200/90">
+            <div className="mb-8 rounded-2xl border border-yellow-500/30 bg-yellow-500/5 p-5 text-sm text-yellow-200/90">
               {sheetError}
             </div>
           )}
 
           {section === "home" && (
-            <div className="space-y-6">
-              <div className="glass relative overflow-hidden rounded-3xl p-8 text-center md:p-12">
+            <div className="space-y-10">
+              <div className="glass glow-ring relative overflow-hidden rounded-[2rem] p-10 text-center md:p-16">
+                <p className="mb-4 text-[11px] uppercase tracking-[0.6em] text-primary/80">Blox Fruits Crew</p>
                 <h2 className="float text-5xl font-black tracking-wider md:text-7xl">
                   <span className="gradient-shift">ZERO ORDER</span>
                 </h2>
-                <p className="mx-auto mt-6 max-w-3xl leading-relaxed text-foreground/90">
+                <p className="mx-auto mt-8 max-w-3xl text-lg leading-loose text-foreground/90">
                   {CREW_DESCRIPTION}
                 </p>
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                  <span className="rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs uppercase tracking-widest">
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+                  <span className="rounded-full border border-primary/40 bg-primary/10 px-5 py-2 text-xs uppercase tracking-widest">
                     Fundada em 14/07/26
                   </span>
                   <button
                     onClick={() => setSection("regions")}
-                    className="rounded-full border border-white/20 px-4 py-1 text-xs uppercase tracking-widest hover:bg-white/10"
+                    className="rounded-full border border-white/20 px-5 py-2 text-xs uppercase tracking-widest hover:bg-white/10"
                   >
                     Ver rankings →
                   </button>
                 </div>
               </div>
 
-              <div className="grid gap-4 lg:grid-cols-3">
-                <div className="glass rounded-2xl p-6 text-center">
-                  <p className="text-[10px] uppercase tracking-widest text-white/50">Melhores da Crew</p>
-                  <p className="gradient-shift text-5xl font-black">{crew.length}</p>
+              <div className="grid gap-6 lg:grid-cols-3">
+                <div className="glass rounded-3xl p-8 text-center">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">Melhores da Crew</p>
+                  <p className="gradient-shift mt-3 text-6xl font-black">{crew.length}</p>
                 </div>
-                <div className="glass rounded-2xl p-6 text-center">
-                  <p className="text-[10px] uppercase tracking-widest text-white/50">Wars vencidas</p>
-                  <p className="gradient-shift text-5xl font-black">{warRecord?.wins ?? 0}</p>
+                <div className="glass rounded-3xl p-8 text-center">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">Wars vencidas</p>
+                  <p className="gradient-shift mt-3 text-6xl font-black">{warRecord?.wins ?? 0}</p>
                 </div>
-                <div className="glass rounded-2xl p-6 text-center">
-                  <p className="text-[10px] uppercase tracking-widest text-white/50">Sorteios ativos</p>
-                  <p className="gradient-shift text-5xl font-black">{giveaways.length}</p>
+                <div className="glass rounded-3xl p-8 text-center">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">Sorteios ativos</p>
+                  <p className="gradient-shift mt-3 text-6xl font-black">{giveaways.length}</p>
                 </div>
               </div>
 
-              <div className="grid gap-4 lg:grid-cols-3">
+              <RegionalManagers items={data?.regionalManagers ?? []} />
+
+              <div className="grid gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
                   <RegionsDashboard data={data} />
                 </div>
@@ -693,6 +696,7 @@ function Index() {
               </div>
             </div>
           )}
+
 
           {section === "crew" && (
             <div>
