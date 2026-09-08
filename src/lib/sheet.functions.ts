@@ -95,19 +95,34 @@ function parseBRDate(s: string): string | null {
   return `${y.padStart(4, "0")}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`;
 }
 
+// Leitura oficial: API do Google Sheets (preserva a POSIÇÃO das linhas vazias).
+// O CSV público (gviz) remove linhas vazias e embaralhava os blocos de região.
+async function loadRows(): Promise<{ rows: string[][]; error?: string }> {
+  try {
+    const { readRange } = await import("./discord-bot.server");
+    const rows = await readRange("A1:Z500");
+    if (rows.length > 0) return { rows };
+  } catch {
+    // sem conector configurado — cai para o CSV público
+  }
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&range=A1:Z500`;
+  const res = await fetch(url, { headers: { "cache-control": "no-cache" } });
+  if (!res.ok) {
+    return { rows: [], error: `Não foi possível ler a planilha (HTTP ${res.status}). Verifique se ela está compartilhada como "Qualquer pessoa com o link".` };
+  }
+  const text = await res.text();
+  if (text.trimStart().startsWith("<")) {
+    return { rows: [], error: 'A planilha ainda está privada. No Google Sheets, clique em "Compartilhar" e escolha "Qualquer pessoa com o link" como Leitor.' };
+  }
+  return { rows: parseCSV(text) };
+}
+
 export const fetchSheetData = createServerFn({ method: "GET" }).handler(
   async (): Promise<SheetData> => {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&range=A1:Z500`;
     try {
-      const res = await fetch(url, { headers: { "cache-control": "no-cache" } });
-      if (!res.ok) {
-        return { ...EMPTY, error: `Não foi possível ler a planilha (HTTP ${res.status}). Verifique se ela está compartilhada como "Qualquer pessoa com o link".` };
-      }
-      const text = await res.text();
-      if (text.trimStart().startsWith("<")) {
-        return { ...EMPTY, error: 'A planilha ainda está privada. No Google Sheets, clique em "Compartilhar" e escolha "Qualquer pessoa com o link" como Leitor.' };
-      }
-      const rows = parseCSV(text);
+      const loaded = await loadRows();
+      if (loaded.error) return { ...EMPTY, error: loaded.error };
+      const rows = loaded.rows;
       const filtered: string[][] = [[], [], [], [], [], []]; // A, C, D, E, F apenas (B tratada à parte)
       const rawB: string[] = [];
       const rawG: string[] = [];
@@ -117,9 +132,11 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
       const rawN: string[] = new Array(60).fill("");
       const rawO: string[] = new Array(60).fill("");
       const rawP: string[] = new Array(60).fill("");
+      const rawM: string[] = new Array(10).fill("");
       const rawK: string[] = [];
       const rawL: string[] = [];
       let spotifyUrl = "";
+
       const max = Math.min(rows.length, 500);
       for (let i = 0; i < max; i++) {
         const r = rows[i] ?? [];
