@@ -168,6 +168,15 @@ export const CATEGORY_COLUMN: Record<string, string> = {
   console: "P",
 };
 
+// Fonte ÚNICA da verdade do bloco de 10 linhas de cada região/categoria.
+// SA 1-10, NA 11-20, EU 21-30, Ásia 31-40, África 41-50, Oceania 51-60.
+export function regionRange(region: string, category: string): string {
+  const column = CATEGORY_COLUMN[category] ?? "J";
+  const start = (REGION_OFFSET[region] ?? 0) + 1;
+  return `${column}${start}:${column}${start + 9}`;
+}
+
+
 // Aceita apelidos/escritas diferentes para região (evita cair sempre no S.A).
 const REGION_ALIASES: Record<string, string> = {
   sa: "sa", "s.a": "sa", "s.a.": "sa", southamerica: "sa", "south america": "sa",
