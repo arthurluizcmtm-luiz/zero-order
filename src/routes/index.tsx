@@ -128,7 +128,8 @@ function DiscordCard({ entry, rank, hideRank }: { entry: string; rank: number; h
 
   return (
     <div className="glass flex items-center gap-4 rounded-2xl p-4">
-      <span className="w-8 shrink-0 text-2xl font-black text-primary">#{rank}</span>
+      {!hideRank && <span className="w-8 shrink-0 text-2xl font-black text-primary">#{rank}</span>}
+
       {avatarUrl ? (
         <img
           src={avatarUrl}
