@@ -212,6 +212,8 @@ export const fetchSheetData = createServerFn({ method: "GET" }).handler(
         regionsMobile: rawN,
         regionsPc: rawO,
         regionsConsole: rawP,
+        regionalManagers: rawM.slice(0, 6),
+
 
         youtube: rawK,
         privateServers: rawL,
