@@ -335,6 +335,45 @@ function RegionsDashboard({ data }: { data: SheetData | undefined }) {
 }
 
 
+function RegionalManagers({ items }: { items: string[] }) {
+  return (
+    <section className="glass glow-ring rounded-3xl p-6 md:p-8">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="flex items-center gap-3 text-2xl font-black">
+          <span>🛡️</span>
+          <span className="gradient-shift">Regional Managers</span>
+        </h3>
+        <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white/60">
+          Coluna M
+        </span>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {REGIONS.map((r, i) => {
+          const entry = (items[i] ?? "").trim();
+          return (
+            <div
+              key={r.key}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-primary/50 hover:bg-white/[0.06]"
+            >
+              <p className="mb-3 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.25em] text-white/60">
+                <span className="text-base">{r.flag}</span>
+                {r.label}
+              </p>
+              {entry ? (
+                <DiscordCard entry={entry} rank={i + 1} hideRank />
+              ) : (
+                <p className="rounded-xl border border-dashed border-white/15 py-5 text-center text-[11px] uppercase tracking-widest text-white/40">
+                  Vaga aberta
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 
 function PrivateServersList({ items }: { items: string[] }) {
   if (items.length === 0) return <ComingSoon />;
