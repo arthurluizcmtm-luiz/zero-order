@@ -47,6 +47,7 @@ export type SheetData = {
   regionsMobile: string[]; // N: 60 slots
   regionsPc: string[]; // O: 60 slots
   regionsConsole: string[]; // P: 60 slots
+  regionalManagers: string[]; // M2:M7 — um por região (SA, NA, EU, Ásia, África, Oceania)
   youtube: string[];
   privateServers: string[]; // coluna L
   spotifyUrl: string; // M1
@@ -57,9 +58,10 @@ export type SheetData = {
 const EMPTY: SheetData = {
   crew: [], warRecord: null, warLogs: [], skilled: [], mobile: [], pc: [], console: [],
   faq: [], news: [], giveaways: [], regions: [], regionsMobile: [], regionsPc: [],
-  regionsConsole: [], youtube: [], privateServers: [],
+  regionsConsole: [], regionalManagers: [], youtube: [], privateServers: [],
   spotifyUrl: "", discord: null,
 };
+
 
 
 
