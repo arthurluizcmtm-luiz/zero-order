@@ -39,6 +39,12 @@ const CATEGORIES = [
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("addtop")
+    .setDescription("Edita uma célula da planilha do site")
+    .addStringOption((o) => o.setName("coluna").setDescription("Coluna de A até Z").setRequired(true).setMinLength(1).setMaxLength(1))
+    .addIntegerOption((o) => o.setName("linha").setDescription("Linha de 1 até 500").setRequired(true).setMinValue(1).setMaxValue(500))
+    .addStringOption((o) => o.setName("valor").setDescription("Novo conteúdo da célula").setRequired(true).setMaxLength(500)),
+  new SlashCommandBuilder()
     .setName("top")
     .setDescription("Coloca alguém no top de uma região")
     .addStringOption((o) =>
@@ -112,6 +118,7 @@ async function callSite(payload) {
 }
 
 const ADMIN_COMMANDS = new Set([
+  "addtop",
   "top",
   "removetop",
   "topcrew",
@@ -150,7 +157,11 @@ client.on("interactionCreate", async (interaction) => {
   try {
     const o = interaction.options;
     const payload = { action: name };
-    if (name === "top" || name === "removetop") {
+    if (name === "addtop") {
+      payload.coluna = o.getString("coluna");
+      payload.linha = o.getInteger("linha");
+      payload.valor = o.getString("valor");
+    } else if (name === "top" || name === "removetop") {
       payload.regiao = o.getString("regiao");
       payload.categoria = o.getString("categoria");
       payload.usuario = o.getUser("usuario")?.id;

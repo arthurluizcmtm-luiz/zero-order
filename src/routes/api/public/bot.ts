@@ -3,6 +3,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import {
+  actionAddTop,
   actionPerguntar,
   actionRemoveTop,
   actionRemoveTopCrew,
@@ -23,6 +24,9 @@ type Body = {
   pergunta?: string;
   posicao?: number;
   sobe?: boolean;
+  coluna?: string;
+  linha?: number;
+  valor?: string;
 };
 
 function safeEqual(a: string, b: string): boolean {
@@ -71,6 +75,13 @@ export const Route = createFileRoute("/api/public/bot")({
           const sobe = body.sobe === true;
           let content: string;
           switch (body.action) {
+            case "addtop":
+              content = await actionAddTop(
+                body.coluna ?? "",
+                Number(body.linha ?? 0),
+                body.valor ?? "",
+              );
+              break;
             case "top":
               content = await actionTop(
                 body.regiao ?? "",

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { actionRemoveTop, actionTop } from "@/lib/discord-actions.server";
+import { actionAddTop, actionRemoveTop, actionTop } from "@/lib/discord-actions.server";
 import {
   askAI,
   cellId,
@@ -66,6 +66,14 @@ async function handleRemoveTop(options: Option[] | undefined): Promise<Response>
     opt(options, "usuario"),
   );
   return reply(content);
+}
+
+async function handleAddTop(options: Option[] | undefined): Promise<Response> {
+  return reply(await actionAddTop(
+    opt(options, "coluna"),
+    Number(opt(options, "linha")),
+    opt(options, "valor"),
+  ));
 }
 
 
@@ -216,6 +224,8 @@ export const Route = createFileRoute("/api/public/discord")({
           }
 
           switch (name) {
+            case "addtop":
+              return await handleAddTop(options);
             case "top":
               return await handleTop(options);
             case "topcrew":
