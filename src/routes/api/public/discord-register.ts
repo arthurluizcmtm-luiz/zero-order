@@ -20,6 +20,15 @@ const CATEGORY_CHOICES = [
 
 const COMMANDS = [
   {
+    name: "addtop",
+    description: "Edita uma célula da planilha do site",
+    options: [
+      { type: 3, name: "coluna", description: "Coluna de A até Z", required: true, min_length: 1, max_length: 1 },
+      { type: 4, name: "linha", description: "Linha de 1 até 500", required: true, min_value: 1, max_value: 500 },
+      { type: 3, name: "valor", description: "Novo conteúdo da célula", required: true, max_length: 500 },
+    ],
+  },
+  {
     name: "top",
     description: "Define quem ocupa uma posição no top de uma região",
     options: [

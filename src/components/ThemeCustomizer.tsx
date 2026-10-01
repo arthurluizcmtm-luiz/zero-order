@@ -9,22 +9,22 @@ type Theme = {
 };
 
 const DEFAULT_THEME: Theme = {
-  primary: "#ff2a3d",
-  secondary: "#ffffff",
-  tertiary: "#b30015",
-  background: "#1a0508",
+  primary: "#a70f2d",
+  secondary: "#e8edf2",
+  tertiary: "#303842",
+  background: "#12161b",
   gradient: true,
 };
 
 const STORAGE_KEY = "zero-order-theme";
 
 const PRESETS: { name: string; theme: Theme }[] = [
-  { name: "Vermelho/Branco", theme: DEFAULT_THEME },
-  { name: "Ouro/Preto", theme: { primary: "#ffd700", secondary: "#ffffff", tertiary: "#8b6b00", background: "#0d0a00", gradient: true } },
-  { name: "Neon Roxo", theme: { primary: "#a855f7", secondary: "#f0abfc", tertiary: "#4c1d95", background: "#0f0518", gradient: true } },
-  { name: "Oceano", theme: { primary: "#06b6d4", secondary: "#ffffff", tertiary: "#0e7490", background: "#031720", gradient: true } },
-  { name: "Verde Mata", theme: { primary: "#22c55e", secondary: "#ecfccb", tertiary: "#166534", background: "#04140a", gradient: true } },
-  { name: "Rosa Cyber", theme: { primary: "#ec4899", secondary: "#ffffff", tertiary: "#831843", background: "#160510", gradient: true } },
+  { name: "Aço Carmim", theme: DEFAULT_THEME },
+  { name: "Obsidiana", theme: { primary: "#c91f37", secondary: "#f4f5f7", tertiary: "#17191d", background: "#090a0c", gradient: true } },
+  { name: "Escarlate", theme: { primary: "#ef3340", secondary: "#d6b36a", tertiary: "#292c31", background: "#111214", gradient: true } },
+  { name: "Gelo Tático", theme: { primary: "#4f718c", secondary: "#e8edf2", tertiary: "#303842", background: "#10151a", gradient: true } },
+  { name: "Esmeralda", theme: { primary: "#168064", secondary: "#e8edf2", tertiary: "#263b37", background: "#0d1514", gradient: true } },
+  { name: "Ouro Noir", theme: { primary: "#b89346", secondary: "#f0eadf", tertiary: "#353028", background: "#12110f", gradient: true } },
 ];
 
 function hexToRgb(hex: string): [number, number, number] {

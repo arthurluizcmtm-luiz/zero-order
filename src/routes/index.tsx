@@ -38,6 +38,12 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
+      { title: "Zero Order | Rankings Blox Fruits" },
+      { name: "description", content: "Rankings, regiões, wars e comunidade oficial da crew Zero Order no Blox Fruits." },
+      { property: "og:title", content: "Zero Order | Rankings Blox Fruits" },
+      { property: "og:description", content: "Acompanhe os rankings regionais e a comunidade Zero Order no Blox Fruits." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:image", content: `${SITE_URL}/__l5e/assets-v1/d48dd19d-fd30-439f-bdd7-7f0dc4e0c043/zero-order-social.png` },
       { property: "og:image:width", content: "1500" },
       { property: "og:image:height", content: "1000" },
@@ -75,7 +81,7 @@ function RankList({
   error?: string;
 }) {
   return (
-    <div className="glass rounded-2xl p-6">
+    <div className="glass tactical-card rounded-lg p-6">
       <h3 className="mb-4 flex items-center justify-center gap-2 text-center text-2xl font-bold">
         <span>{emoji}</span>
         <span className="gradient-shift">{title}</span>
@@ -127,7 +133,7 @@ function DiscordCard({ entry, rank, hideRank }: { entry: string; rank: number; h
     (id ? `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(id) % 6n)}.png` : "");
 
   return (
-    <div className="glass flex items-center gap-4 rounded-2xl p-4">
+    <div className="glass flex items-center gap-4 rounded-lg p-4">
       {!hideRank && <span className="w-8 shrink-0 text-2xl font-black text-primary">#{rank}</span>}
 
       {avatarUrl ? (
@@ -165,7 +171,7 @@ function DiscordCard({ entry, rank, hideRank }: { entry: string; rank: number; h
 
 function DiscordInviteBanner({ data }: { data: SheetData["discord"] }) {
   return (
-    <aside className="glass glow-ring flex flex-col items-center justify-center rounded-2xl p-8 text-center">
+    <aside className="glass glow-ring flex flex-col items-center justify-center rounded-lg p-8 text-center">
       {data?.iconUrl ? (
         <img
           src={data.iconUrl}
@@ -291,12 +297,12 @@ function RegionsDashboard({ data }: { data: SheetData | undefined }) {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="region-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {REGIONS.map((r) => {
           const list = slots.slice(r.start, r.end).map((v) => v.trim()).filter(Boolean);
           const expanded = openRegion === r.key;
           return (
-            <div key={r.key} className="glass rounded-2xl p-4">
+            <div key={r.key} className="glass region-card rounded-lg p-5">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em]">
                   <span className="text-lg">{r.flag}</span>
@@ -338,7 +344,7 @@ function RegionsDashboard({ data }: { data: SheetData | undefined }) {
 
 function RegionalManagers({ items }: { items: string[] }) {
   return (
-    <section className="glass glow-ring rounded-3xl p-6 md:p-8">
+    <section className="glass glow-ring rounded-lg p-6 md:p-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h3 className="flex items-center gap-3 text-2xl font-black">
           <span>🛡️</span>
@@ -600,18 +606,19 @@ function Index() {
   const faqItems = sheetFaq.length > 0 ? sheetFaq : FAQ;
 
   return (
-    <div className="aurora min-h-screen font-body">
+    <div className="command-shell min-h-screen font-body">
       <SourceGuard />
       <ThemeCustomizer />
       <MusicPlayer />
 
-      <div className="mx-auto flex max-w-[1500px] flex-col lg:flex-row">
+       <div className="mx-auto flex max-w-[1600px] flex-col lg:flex-row">
         {/* Sidebar */}
         <aside className="lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:overflow-y-auto">
-          <div className="glass m-3 rounded-2xl p-4 lg:m-4">
+          <div className="sidebar-panel m-3 rounded-lg p-4 lg:m-4">
             <div className="mb-5 text-center">
-              <p className="text-[10px] uppercase tracking-[0.4em] text-primary/80">Blox Fruits Crew</p>
-              <h1 className="gradient-shift text-2xl font-black tracking-wider">ZERO ORDER</h1>
+              <div className="brand-mark mx-auto mb-3">ZO</div>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">Blox Fruits Crew</p>
+              <h1 className="text-3xl font-black text-foreground">ZERO ORDER</h1>
             </div>
             <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
               {NAV.map((n) => (
@@ -650,47 +657,46 @@ function Index() {
 
           {section === "home" && (
             <div className="space-y-10">
-              <div className="glass glow-ring relative overflow-hidden rounded-[2rem] p-10 text-center md:p-16">
-                <p className="mb-4 text-[11px] uppercase tracking-[0.6em] text-primary/80">Blox Fruits Crew</p>
-                <h2 className="float text-5xl font-black tracking-wider md:text-7xl">
-                  <span className="gradient-shift">ZERO ORDER</span>
-                </h2>
-                <p className="mx-auto mt-8 max-w-3xl text-lg leading-loose text-foreground/90">
-                  {CREW_DESCRIPTION}
-                </p>
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                  <span className="rounded-full border border-primary/40 bg-primary/10 px-5 py-2 text-xs uppercase tracking-widest">
-                    Fundada em 14/07/26
-                  </span>
-                  <button
-                    onClick={() => setSection("regions")}
-                    className="rounded-full border border-white/20 px-5 py-2 text-xs uppercase tracking-widest hover:bg-white/10"
-                  >
-                    Ver rankings →
-                  </button>
+              <header className="dashboard-header">
+                <div>
+                  <p className="section-kicker">CENTRAL DE OPERAÇÕES</p>
+                  <h2 className="text-4xl font-black text-foreground md:text-5xl">DOMÍNIO REGIONAL</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Rankings atualizados diretamente pela operação Zero Order.</p>
                 </div>
-              </div>
+                <div className="live-status"><span /> SISTEMA ATIVO</div>
+              </header>
+
+              <section className="command-panel p-5 md:p-7">
+                <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+                  <div><p className="section-kicker">REDE GLOBAL</p><h3 className="text-3xl font-black text-foreground">TODAS AS REGIÕES</h3></div>
+                  <p className="max-w-md text-right text-sm text-muted-foreground">Escolha a plataforma e abra qualquer região para consultar o top completo.</p>
+                </div>
+                <RegionsDashboard data={data} />
+              </section>
+
+              <RegionalManagers items={data?.regionalManagers ?? []} />
 
               <div className="grid gap-6 lg:grid-cols-3">
-                <div className="glass rounded-3xl p-8 text-center">
+                <div className="glass rounded-lg p-8 text-center">
                   <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">Melhores da Crew</p>
                   <p className="gradient-shift mt-3 text-6xl font-black">{crew.length}</p>
                 </div>
-                <div className="glass rounded-3xl p-8 text-center">
+                <div className="glass rounded-lg p-8 text-center">
                   <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">Wars vencidas</p>
                   <p className="gradient-shift mt-3 text-6xl font-black">{warRecord?.wins ?? 0}</p>
                 </div>
-                <div className="glass rounded-3xl p-8 text-center">
+                <div className="glass rounded-lg p-8 text-center">
                   <p className="text-[10px] uppercase tracking-[0.3em] text-white/50">Sorteios ativos</p>
                   <p className="gradient-shift mt-3 text-6xl font-black">{giveaways.length}</p>
                 </div>
               </div>
 
-              <RegionalManagers items={data?.regionalManagers ?? []} />
-
-              <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2">
-                  <RegionsDashboard data={data} />
+              <div className="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
+                <div className="command-panel p-8">
+                  <p className="section-kicker">ZERO ORDER / 2026</p>
+                  <h3 className="mt-2 text-4xl font-black text-foreground">COMPETE. EVOLVE. DOMINA.</h3>
+                  <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">{CREW_DESCRIPTION}</p>
+                  <span className="mt-6 inline-flex border border-primary/40 bg-primary/10 px-4 py-2 text-xs uppercase tracking-widest">Fundada em 14/07/26</span>
                 </div>
                 <DiscordInviteBanner data={data?.discord ?? null} />
               </div>

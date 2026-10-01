@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 
-// Dificulta a inspeção casual do site: bloqueia F12, Ctrl/Cmd+Shift+I/J/C,
-// Ctrl+U (ver código-fonte), o menu de contexto e tenta detectar DevTools aberto.
+// Dificulta a inspeção casual sem interferir na troca de aba ou no uso normal.
 export default function SourceGuard() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -21,50 +20,39 @@ export default function SourceGuard() {
     window.addEventListener("keydown", onKey, true);
     window.addEventListener("contextmenu", onContext);
 
-    // Detecção de DevTools por diferença de tamanho (threshold ampla p/ dock).
-    let devtoolsOpen = false;
-    const threshold = 170;
+    // Só reage a uma diferença grande e persistente enquanto a página está
+    // visível e focada. Isso evita o falso positivo ao trocar de aba.
+    let suspiciousChecks = 0;
+    const threshold = 260;
 
     const checkSize = () => {
-      const widthDiff = window.outerWidth - window.innerWidth;
-      const heightDiff = window.outerHeight - window.innerHeight;
-      const open = widthDiff > threshold || heightDiff > threshold;
-      if (open && !devtoolsOpen) {
-        devtoolsOpen = true;
-        blankPage();
-      } else if (!open) {
-        devtoolsOpen = false;
+      if (document.visibilityState !== "visible" || !document.hasFocus()) {
+        suspiciousChecks = 0;
+        return;
       }
-    };
-
-    // Detecção por debugger (tempo de execução salta quando DevTools está aberto).
-    const checkDebugger = () => {
-      const start = performance.now();
-      // eslint-disable-next-line no-debugger
-      debugger;
-      if (performance.now() - start > 120) {
-        blankPage();
-      }
+      const widthDiff = Math.max(0, window.outerWidth - window.innerWidth);
+      const heightDiff = Math.max(0, window.outerHeight - window.innerHeight);
+      const suspicious = widthDiff > threshold || heightDiff > threshold;
+      suspiciousChecks = suspicious ? suspiciousChecks + 1 : 0;
+      if (suspiciousChecks >= 3) blankPage();
     };
 
     function blankPage() {
       try {
         document.body.innerHTML = "";
-        document.body.style.background = "#050205";
+        document.body.style.background = "var(--background)";
         document.title = "—";
       } catch {
         /* ignore */
       }
     }
 
-    const sizeTimer = window.setInterval(checkSize, 800);
-    const dbgTimer = window.setInterval(checkDebugger, 1500);
+    const sizeTimer = window.setInterval(checkSize, 900);
 
     return () => {
       window.removeEventListener("keydown", onKey, true);
       window.removeEventListener("contextmenu", onContext);
       window.clearInterval(sizeTimer);
-      window.clearInterval(dbgTimer);
     };
   }, []);
 

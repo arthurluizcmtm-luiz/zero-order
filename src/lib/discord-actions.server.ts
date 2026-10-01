@@ -22,6 +22,23 @@ export function parseId(raw: string): string | null {
   return m ? (m[1] ?? null) : null;
 }
 
+export async function actionAddTop(
+  coluna: string,
+  linha: number,
+  valor: string,
+): Promise<string> {
+  const column = (coluna ?? "").trim().toUpperCase();
+  const value = (valor ?? "").trim();
+  if (!/^[A-Z]$/.test(column)) return "A coluna precisa ser uma letra de A até Z.";
+  if (!Number.isInteger(linha) || linha < 1 || linha > 500) {
+    return "A linha precisa ser um número de 1 a 500.";
+  }
+  if (!value || value.length > 500) return "Informe um valor de até 500 caracteres.";
+  const range = `${column}${linha}`;
+  await writeColumn(range, [value]);
+  return `✅ Célula \`${range}\` atualizada com segurança.`;
+}
+
 export async function actionTop(
   regiao: string,
   categoria: string,
