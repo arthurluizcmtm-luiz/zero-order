@@ -9,27 +9,37 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiPublicJoinRouteImport } from './routes/api/public/join'
-import { Route as ApiPublicDiscordRegisterRouteImport } from './routes/api/public/discord-register'
-import { Route as ApiPublicDiscordRouteImport } from './routes/api/public/discord'
-import { Route as ApiPublicDataRouteImport } from './routes/api/public/data'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ApiPublicBotRouteImport } from './routes/api/public/bot'
+import { Route as ApiPublicDataRouteImport } from './routes/api/public/data'
+import { Route as ApiPublicDiscordRouteImport } from './routes/api/public/discord'
+import { Route as ApiPublicDiscordRegisterRouteImport } from './routes/api/public/discord-register'
+import { Route as ApiPublicJoinRouteImport } from './routes/api/public/join'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicJoinRoute = ApiPublicJoinRouteImport.update({
-  id: '/api/public/join',
-  path: '/api/public/join',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBotRoute = ApiPublicBotRouteImport.update({
+  id: '/api/public/bot',
+  path: '/api/public/bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDataRoute = ApiPublicDataRouteImport.update({
+  id: '/api/public/data',
+  path: '/api/public/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDiscordRoute = ApiPublicDiscordRouteImport.update({
+  id: '/api/public/discord',
+  path: '/api/public/discord',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicDiscordRegisterRoute =
@@ -38,19 +48,9 @@ const ApiPublicDiscordRegisterRoute =
     path: '/api/public/discord-register',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicDiscordRoute = ApiPublicDiscordRouteImport.update({
-  id: '/api/public/discord',
-  path: '/api/public/discord',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicDataRoute = ApiPublicDataRouteImport.update({
-  id: '/api/public/data',
-  path: '/api/public/data',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicBotRoute = ApiPublicBotRouteImport.update({
-  id: '/api/public/bot',
-  path: '/api/public/bot',
+const ApiPublicJoinRoute = ApiPublicJoinRouteImport.update({
+  id: '/api/public/join',
+  path: '/api/public/join',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -124,13 +124,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -138,25 +131,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/join': {
-      id: '/api/public/join'
-      path: '/api/public/join'
-      fullPath: '/api/public/join'
-      preLoaderRoute: typeof ApiPublicJoinRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/discord-register': {
-      id: '/api/public/discord-register'
-      path: '/api/public/discord-register'
-      fullPath: '/api/public/discord-register'
-      preLoaderRoute: typeof ApiPublicDiscordRegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/discord': {
-      id: '/api/public/discord'
-      path: '/api/public/discord'
-      fullPath: '/api/public/discord'
-      preLoaderRoute: typeof ApiPublicDiscordRouteImport
+    '/api/public/bot': {
+      id: '/api/public/bot'
+      path: '/api/public/bot'
+      fullPath: '/api/public/bot'
+      preLoaderRoute: typeof ApiPublicBotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/data': {
@@ -166,11 +152,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDataRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/bot': {
-      id: '/api/public/bot'
-      path: '/api/public/bot'
-      fullPath: '/api/public/bot'
-      preLoaderRoute: typeof ApiPublicBotRouteImport
+    '/api/public/discord': {
+      id: '/api/public/discord'
+      path: '/api/public/discord'
+      fullPath: '/api/public/discord'
+      preLoaderRoute: typeof ApiPublicDiscordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/discord-register': {
+      id: '/api/public/discord-register'
+      path: '/api/public/discord-register'
+      fullPath: '/api/public/discord-register'
+      preLoaderRoute: typeof ApiPublicDiscordRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/join': {
+      id: '/api/public/join'
+      path: '/api/public/join'
+      fullPath: '/api/public/join'
+      preLoaderRoute: typeof ApiPublicJoinRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
