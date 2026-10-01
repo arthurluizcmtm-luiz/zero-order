@@ -29,38 +29,38 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-display: "Cinzel", serif;
-  --font-body: "Quicksand", sans-serif;
+  --font-display: "Bebas Neue", sans-serif;
+  --font-body: "Barlow", sans-serif;
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 0.5rem;
   /* Tema editável em runtime (ThemeCustomizer). */
-  --theme-primary: #ff2a3d;
-  --theme-secondary: #ffffff;
-  --theme-tertiary: #b30015;
-  --theme-background: #1a0508;
-  --theme-primary-rgb: 255, 42, 61;
-  --theme-gradient: linear-gradient(120deg, #ff2a3d, #ffffff, #b30015, #ffffff, #ff2a3d);
+  --theme-primary: #a70f2d;
+  --theme-secondary: #e8edf2;
+  --theme-tertiary: #303842;
+  --theme-background: #12161b;
+  --theme-primary-rgb: 167, 15, 45;
+  --theme-gradient: linear-gradient(120deg, #a70f2d, #e8edf2, #303842, #e8edf2, #a70f2d);
 
   --background: var(--theme-background);
-  --foreground: #fefefe;
-  --card: rgba(255, 255, 255, 0.04);
-  --card-foreground: #fefefe;
-  --popover: rgba(0, 0, 0, 0.85);
-  --popover-foreground: #fefefe;
+  --foreground: #e8edf2;
+  --card: #171c22;
+  --card-foreground: #e8edf2;
+  --popover: #171c22;
+  --popover-foreground: #e8edf2;
   --primary: var(--theme-primary);
   --primary-foreground: #ffffff;
   --secondary: var(--theme-tertiary);
   --secondary-foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.05);
-  --muted-foreground: rgba(255, 255, 255, 0.65);
+  --muted: #222932;
+  --muted-foreground: #98a3af;
   --accent: var(--theme-secondary);
   --accent-foreground: #000000;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.15);
-  --input: rgba(255, 255, 255, 0.12);
+  --border: #303842;
+  --input: #303842;
   --ring: var(--theme-primary);
 }
 
@@ -71,25 +71,21 @@
   body {
     color: var(--color-foreground);
     font-family: var(--font-body);
-    background:
-      radial-gradient(circle at 15% 20%, rgba(var(--theme-primary-rgb), 0.45), transparent 45%),
-      radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.12), transparent 45%),
-      radial-gradient(circle at 50% 90%, rgba(var(--theme-primary-rgb), 0.4), transparent 55%),
-      linear-gradient(180deg, var(--theme-background), #050205);
+    background: linear-gradient(180deg, var(--theme-background), #090b0e);
     background-attachment: fixed;
     min-height: 100vh;
   }
   h1, h2, h3 {
     font-family: var(--font-display);
+    letter-spacing: 0;
   }
 }
 
 @utility glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 40px -8px rgba(var(--theme-primary-rgb), 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: color-mix(in oklab, var(--card) 94%, transparent);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 45px -32px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
 @utility text-glow {
@@ -215,10 +211,118 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .glass:hover {
-  border-color: rgba(var(--theme-primary-rgb), 0.45);
-  box-shadow:
-    0 14px 60px -12px rgba(var(--theme-primary-rgb), 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-color: color-mix(in oklab, var(--primary) 55%, var(--border));
+  box-shadow: 0 22px 52px -34px rgba(var(--theme-primary-rgb), 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ============ Zero Order command interface ============ */
+@keyframes commandWave {
+  0%, 100% { transform: translate3d(-3%, 0, 0); }
+  50% { transform: translate3d(3%, -10px, 0); }
+}
+
+@keyframes regionEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility command-shell {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(rgba(232, 237, 242, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 237, 242, 0.018) 1px, transparent 1px),
+    linear-gradient(180deg, var(--theme-background), #090b0e);
+  background-size: 42px 42px, 42px 42px, auto;
+}
+
+.command-shell::before {
+  content: "";
+  position: fixed;
+  inset: auto -10% -18vh;
+  height: 45vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.38;
+  background: repeating-radial-gradient(ellipse at 50% 100%, transparent 0 34px, rgba(var(--theme-primary-rgb), 0.18) 36px 38px, transparent 40px 66px);
+  animation: commandWave 14s ease-in-out infinite;
+}
+
+@utility sidebar-panel {
+  background: color-mix(in oklab, #0b0e12 94%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px -38px rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(18px);
+}
+
+@utility brand-mark {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--primary) 70%, var(--border));
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  box-shadow: 0 0 24px rgba(var(--theme-primary-rgb), 0.28);
+}
+
+@utility dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+@utility section-kicker {
+  color: var(--primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+@utility live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid color-mix(in oklab, #1f9d6a 35%, var(--border));
+  background: color-mix(in oklab, #1f9d6a 8%, var(--card));
+  color: #74d6ac;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  & span {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: #35bd82;
+    box-shadow: 0 0 12px #35bd82;
+  }
+}
+
+@utility command-panel {
+  background: color-mix(in oklab, var(--card) 96%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 55px -38px rgba(0, 0, 0, 0.92);
+}
+
+.region-card {
+  animation: regionEnter 0.45s ease-out both;
+}
+.region-card:nth-child(2) { animation-delay: 60ms; }
+.region-card:nth-child(3) { animation-delay: 120ms; }
+.region-card:nth-child(4) { animation-delay: 180ms; }
+.region-card:nth-child(5) { animation-delay: 240ms; }
+.region-card:nth-child(6) { animation-delay: 300ms; }
+.region-card:hover { transform: translateY(-2px); }
+
+@media (max-width: 767px) {
+  .dashboard-header { align-items: flex-start; flex-direction: column; }
 }
 
 /* Scrollbar temática */
