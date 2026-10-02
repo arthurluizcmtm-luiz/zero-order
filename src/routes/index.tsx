@@ -112,7 +112,7 @@ function DiscordCard({ entry, rank, hideRank }: { entry: string; rank: number; h
   const parsed = parseDiscordEntry(entry);
   const id = parsed?.id ?? "";
   const fallbackName = parsed?.fallbackName || (id ? `User ${id.slice(-4)}` : entry);
-  const shouldFetch = !!id && !parsed?.forceFallback;
+  const shouldFetch = !!id;
 
   const { data } = useQuery<DiscordUser>({
     queryKey: ["discord-user", id],
